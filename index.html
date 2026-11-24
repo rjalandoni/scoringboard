@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>EventScore Pro - Live Competition Scoring & Reveal System</title>
+  <title>RI Chem Christmas ID Station 2026 - Scoring System</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -92,12 +92,12 @@
       
       <!-- Brand & Sync Status -->
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-indigo via-brand-purple to-brand-gold flex items-center justify-center font-display font-black text-white text-lg shadow-lg shadow-indigo-500/20">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-gold via-brand-rose to-brand-indigo flex items-center justify-center font-display font-black text-white text-lg shadow-lg shadow-amber-500/20">
           ES
         </div>
         <div>
           <h1 id="header-event-title" class="font-display font-bold text-sm sm:text-base text-white tracking-tight line-clamp-1">
-            EventScore Pro
+            RI Chem Christmas ID Station 2026
           </h1>
           <div id="sync-status-badge" class="mt-0.5"></div>
         </div>
@@ -119,7 +119,7 @@
         </button>
       </div>
 
-      <!-- General Copy Link Button -->
+      <!-- Copy Portal Link Button -->
       <div class="flex items-center gap-2">
         <button onclick="window.EventApp.copyJudgeLink()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5 text-brand-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
@@ -133,13 +133,13 @@
   <!-- MAIN CONTAINER -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
 
-    <!-- Firestore Diagnostic Banner (Hidden if OK) -->
-    <div id="firestore-notice-banner" class="hidden mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs leading-relaxed space-y-1">
-      <div class="font-bold flex items-center gap-1.5">
-        <span>⚠️ Cloud Database Note</span>
+    <!-- Firestore Diagnostic Banner -->
+    <div id="firestore-notice-banner" class="hidden mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs leading-relaxed space-y-2">
+      <div class="font-bold flex items-center gap-1.5 text-amber-200">
+        <span>⚠️ Database Connection / Security Notice</span>
       </div>
       <p id="firestore-notice-msg">
-        Data is currently saving in your browser local memory. To sync across different devices, make sure your Cloud Firestore rules in Firebase Console allow reads and writes (`allow read, write: if true;`).
+        The application is running in local mode. If you see a permission error, ensure your Firebase Firestore Rules permit reads & writes for this competition event.
       </p>
     </div>
 
@@ -152,12 +152,12 @@
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 glass-card p-5 rounded-2xl border border-slate-800">
         <div>
           <h2 class="text-xl font-bold font-display text-white">Organizer Command Center</h2>
-          <p class="text-xs text-slate-400">Configure event mechanics, contestants, judges, and inspect real-time scores.</p>
+          <p class="text-xs text-slate-400">Configure event mechanics, contestants, judges, and inspect live scores in real time.</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button onclick="window.EventApp.loadSampleData()" class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-600/30 transition-all flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-            Load Demo Data
+            Load Preset Data
           </button>
           <button onclick="window.EventApp.resetAllScores()" class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/30 hover:bg-rose-500/20 transition-all flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
@@ -172,7 +172,7 @@
           📋 Event & Mechanics
         </button>
         <button id="org-tab-contestants" onclick="window.EventApp.activeTab = 'contestants'; window.EventApp.renderOrganizerView();" class="px-4 py-2 font-semibold text-sm rounded-lg transition-all">
-          🎭 Contestants & Teams
+          🎭 Contestants & Stations
         </button>
         <button id="org-tab-judges" onclick="window.EventApp.activeTab = 'judges'; window.EventApp.renderOrganizerView();" class="px-4 py-2 font-semibold text-sm rounded-lg transition-all">
           ⚖️ Adjudicators
@@ -238,19 +238,19 @@
       <!-- TAB 2: CONTESTANTS MANAGER -->
       <div id="org-subview-contestants" class="space-y-6 hidden">
         <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-4">
-          <h3 class="text-base font-bold text-white">Add New Contestant / Team</h3>
+          <h3 class="text-base font-bold text-white">Add New Station / Contestant</h3>
           <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div>
               <label class="block text-xs text-slate-400 mb-1">Badge / Order No.</label>
               <input type="text" id="add-cnt-num" placeholder="01" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
             </div>
             <div class="sm:col-span-2">
-              <label class="block text-xs text-slate-400 mb-1">Contestant / Team Name</label>
-              <input type="text" id="add-cnt-name" placeholder="Name or Group Name" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+              <label class="block text-xs text-slate-400 mb-1">Station / Group Name</label>
+              <input type="text" id="add-cnt-name" placeholder="Station Title or Entry Name" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
             </div>
             <div>
-              <label class="block text-xs text-slate-400 mb-1">Affiliation / School</label>
-              <input type="text" id="add-cnt-team" placeholder="Organization" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+              <label class="block text-xs text-slate-400 mb-1">Department / Team</label>
+              <input type="text" id="add-cnt-team" placeholder="Department / Group" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
             </div>
           </div>
           <button onclick="window.EventApp.addContestant()" class="px-4 py-2 text-xs font-bold rounded-xl bg-brand-emerald text-white hover:bg-emerald-600 transition-all">
@@ -268,11 +268,11 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label class="block text-xs text-slate-400 mb-1">Judge Full Name</label>
-              <input type="text" id="add-judge-name" placeholder="e.g. Dr. Marcus Vance" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+              <input type="text" id="add-judge-name" placeholder="e.g. Judge Alex Rivera" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
             </div>
             <div>
               <label class="block text-xs text-slate-400 mb-1">Title / Designation</label>
-              <input type="text" id="add-judge-title" placeholder="e.g. Head Adjudicator" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+              <input type="text" id="add-judge-title" placeholder="e.g. Executive Committee" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
             </div>
           </div>
           <button onclick="window.EventApp.addJudge()" class="px-4 py-2 text-xs font-bold rounded-xl bg-brand-indigo text-white hover:bg-indigo-600 transition-all">
@@ -337,10 +337,10 @@
       <!-- Stage Title Header -->
       <div class="text-center space-y-2 py-4">
         <span class="px-4 py-1 rounded-full bg-brand-gold/10 text-brand-gold border border-brand-gold/30 text-xs font-extrabold uppercase tracking-widest inline-block animate-pulse">
-          LIVE CHAMPIONSHIP REVEAL
+          🎄 LIVE CHRISTMAS REVEAL
         </span>
         <h2 id="stage-event-title" class="text-3xl sm:text-5xl font-black font-display text-white tracking-tight">
-          Competition Results
+          RI Chem Christmas ID Station 2026
         </h2>
         <p id="stage-event-subtitle" class="text-sm sm:text-base text-slate-400 font-medium"></p>
       </div>
@@ -398,12 +398,13 @@
     </div>
   </div>
 
-  <!-- APPLICATION LOGIC & FIREBASE SYNCHRONIZATION -->
+  <!-- APPLICATION LOGIC & FIREBASE REAL-TIME SYNCHRONIZATION -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Pre-configured User Firebase Config
+    // User's Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBoWFNlo__qY5LsVadGkSCmYmyRfHqS55s",
       authDomain: "onlinescoring-721bd.firebaseapp.com",
@@ -414,58 +415,39 @@
       measurementId: "G-51VDSX47L8"
     };
 
-    // Default Competition Data Seed
+    // Default Event State Seed for RI Chem Christmas ID Station 2026
     const defaultData = {
       event: {
-        title: "National Performing Arts & Talent Championship",
-        subtitle: "Grand Finals • Live Adjudication",
+        title: "RI Chem Christmas ID Station 2026",
+        subtitle: "Annual Holiday Inter-Department Showcase & Competition",
         scoringMode: "weighted", // "weighted" or "raw"
       },
       criteria: [
-        { id: "c1", name: "Technique & Execution", weight: 35, maxScore: 100, description: "Precision, mastery of difficulty, movement control, and skill execution." },
-        { id: "c2", name: "Creativity & Choreography", weight: 30, maxScore: 100, description: "Originality, artistic vision, seamless transitions, and composition." },
-        { id: "c3", name: "Stage Presence & Impact", weight: 25, maxScore: 100, description: "Audience engagement, charisma, emotional delivery, and expression." },
-        { id: "c4", name: "Costume & Aesthetics", weight: 10, maxScore: 100, description: "Visual coherence, costume design, and overall stage presentation." }
+        { id: "c1", name: "Creativity & Theme Coherence", weight: 35, maxScore: 100, description: "Uniqueness, holiday spirit, and alignment with the RI Chem Christmas theme." },
+        { id: "c2", name: "Craftsmanship & Visual Impact", weight: 30, maxScore: 100, description: "Attention to detail, aesthetic harmony, lighting, and decorative design." },
+        { id: "c3", name: "Team Presentation & Engagement", weight: 25, maxScore: 100, description: "Energy, team hospitality, performance presentation, and storytelling." },
+        { id: "c4", name: "Resourcefulness & Sustainability", weight: 10, maxScore: 100, description: "Innovative use of recycled or eco-friendly materials." }
       ],
       contestants: [
-        { id: "cnt1", number: "01", name: "Aria Vance & The Luminaries", team: "Metropolis Dance Theater", avatar: "💃" },
-        { id: "cnt2", number: "02", name: "Quantum Rhythm Crew", team: "East Coast Urban Academy", avatar: "⚡" },
-        { id: "cnt3", number: "03", name: "Symphony of Motion", team: "Royal Ballet Troupe", avatar: "🎻" },
-        { id: "cnt4", number: "04", name: "Apex Dynamics", team: "Pacific Acrobatics Collective", avatar: "🔥" },
-        { id: "cnt5", number: "05", name: "Celestial Harmonies", team: "Vocal Masters Ensemble", avatar: "🎤" }
+        { id: "cnt1", number: "01", name: "Station 1 - Winter Wonderland", team: "R&D / Laboratory Division", avatar: "❄️" },
+        { id: "cnt2", number: "02", name: "Station 2 - Santa's Chemical Workshop", team: "Operations & Production", avatar: "🎅" },
+        { id: "cnt3", number: "03", name: "Station 3 - Gingerbread Innovation Hub", team: "Quality Assurance & Control", avatar: "🍪" },
+        { id: "cnt4", number: "04", name: "Station 4 - Metallic & Festive Sparkle", team: "Supply Chain & Logistics", avatar: "✨" },
+        { id: "cnt5", number: "05", name: "Station 5 - Polar Express ID Lounge", team: "Administration & HR", avatar: "🚂" }
       ],
       judges: [
-        { id: "j1", name: "Dr. Marcus Vance", title: "Head Judge • Choreography Master" },
-        { id: "j2", name: "Elena Rostova", title: "Artistic Director & Performance Critic" },
-        { id: "j3", name: "Julian Thorne", title: "Broadway Director & Adjudicator" }
+        { id: "j1", name: "Judge 1 - Executive Director", title: "Head Adjudicator" },
+        { id: "j2", name: "Judge 2 - Creative Lead", title: "Design & Aesthetic Adjudicator" },
+        { id: "j3", name: "Judge 3 - Guest Evaluator", title: "Special Guest Critic" }
       ],
-      scores: {
-        "j1_cnt1_c1": 94, "j1_cnt1_c2": 92, "j1_cnt1_c3": 90, "j1_cnt1_c4": 95,
-        "j2_cnt1_c1": 90, "j2_cnt1_c2": 95, "j2_cnt1_c3": 92, "j2_cnt1_c4": 93,
-        "j3_cnt1_c1": 92, "j3_cnt1_c2": 91, "j3_cnt1_c3": 94, "j3_cnt1_c4": 90,
-
-        "j1_cnt2_c1": 88, "j1_cnt2_c2": 94, "j1_cnt2_c3": 96, "j1_cnt2_c4": 91,
-        "j2_cnt2_c1": 86, "j2_cnt2_c2": 96, "j2_cnt2_c3": 95, "j2_cnt2_c4": 89,
-        "j3_cnt2_c1": 90, "j3_cnt2_c2": 93, "j3_cnt2_c3": 97, "j3_cnt2_c4": 92,
-
-        "j1_cnt3_c1": 96, "j1_cnt3_c2": 89, "j1_cnt3_c3": 91, "j1_cnt3_c4": 94,
-        "j2_cnt3_c1": 95, "j2_cnt3_c2": 88, "j2_cnt3_c3": 90, "j2_cnt3_c4": 96,
-
-        "j1_cnt4_c1": 85, "j1_cnt4_c2": 86, "j1_cnt4_c3": 88, "j1_cnt4_c4": 85,
-
-        "j1_cnt5_c1": 91, "j1_cnt5_c2": 90, "j1_cnt5_c3": 89, "j1_cnt5_c4": 92
-      },
-      submissions: {
-        "j1": true,
-        "j2": false,
-        "j3": false
-      }
+      scores: {},
+      submissions: {}
     };
 
-    // Safe Local Cache Handler
+    // Local Storage Fallback Cache
     function loadLocalCache() {
       try {
-        const stored = localStorage.getItem('eventscore_firebase_cache');
+        const stored = localStorage.getItem('richemic_scoring_2026_cache');
         if (stored) return JSON.parse(stored);
       } catch (e) {
         console.warn("localStorage access restricted:", e);
@@ -475,13 +457,13 @@
 
     function saveLocalCache(data) {
       try {
-        localStorage.setItem('eventscore_firebase_cache', JSON.stringify(data));
+        localStorage.setItem('richemic_scoring_2026_cache', JSON.stringify(data));
       } catch (e) {
         console.warn("localStorage write restricted:", e);
       }
     }
 
-    // Native HTML5 Canvas Confetti Engine
+    // Native Confetti Engine
     function launchConfetti() {
       const canvas = document.getElementById('confetti-canvas');
       if (!canvas) return;
@@ -490,14 +472,14 @@
       canvas.height = window.innerHeight;
 
       const particles = [];
-      const colors = ['#F59E0B', '#10B981', '#6366F1', '#EC4899', '#3B82F6', '#F43F5E'];
+      const colors = ['#F59E0B', '#10B981', '#6366F1', '#EC4899', '#3B82F6', '#F43F5E', '#E11D48'];
 
-      for (let i = 0; i < 140; i++) {
+      for (let i = 0; i < 150; i++) {
         particles.push({
           x: canvas.width / 2,
-          y: canvas.height / 2 + 80,
-          vx: (Math.random() - 0.5) * 20,
-          vy: (Math.random() - 0.85) * 22,
+          y: canvas.height / 2 + 60,
+          vx: (Math.random() - 0.5) * 22,
+          vy: (Math.random() - 0.85) * 24,
           size: Math.random() * 8 + 4,
           color: colors[Math.floor(Math.random() * colors.length)],
           rotation: Math.random() * 360,
@@ -516,7 +498,7 @@
           active = true;
           p.x += p.vx;
           p.y += p.vy;
-          p.vy += 0.35; // Gravity
+          p.vy += 0.35;
           p.rotation += p.vRot;
           p.opacity -= 0.007;
 
@@ -530,7 +512,7 @@
         });
 
         frameCount++;
-        if (active && frameCount < 220) {
+        if (active && frameCount < 230) {
           requestAnimationFrame(animate);
         } else {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -540,13 +522,13 @@
       animate();
     }
 
-    // Global Application Object
     let db = null;
+    let auth = null;
     let eventDocRef = null;
 
     window.EventApp = {
       data: loadLocalCache(),
-      currentMode: 'organizer', // 'organizer', 'judge', 'reveal'
+      currentMode: 'organizer',
       selectedJudgeId: 'j1',
       activeTab: 'mechanics',
       revealState: {
@@ -580,13 +562,22 @@
         }
       },
 
-      initFirebase: function() {
+      initFirebase: async function() {
         try {
+          const appId = typeof __app_id !== 'undefined' ? __app_id : 'richemic-2026';
           const app = initializeApp(firebaseConfig);
+          auth = getAuth(app);
           db = getFirestore(app);
-          eventDocRef = doc(db, 'events', 'onlinescoring-main');
 
-          // Real-Time Cloud Listener
+          // Authenticate anonymously first to satisfy security rules
+          await signInAnonymously(auth).catch(err => {
+            console.warn("Anonymous Auth Notice:", err);
+          });
+
+          // Document location following rules
+          eventDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'richemic-scoring-2026');
+
+          // Real-Time Listener
           onSnapshot(eventDocRef, (docSnap) => {
             if (docSnap.exists()) {
               const cloudData = docSnap.data();
@@ -598,36 +589,37 @@
                 this.renderAll();
               }
             } else {
-              // Initialize document on cloud
+              // Seed database with default structure
               setDoc(eventDocRef, this.data).then(() => {
                 this.updateSyncBadge(true, "Cloud Synced Live");
                 this.hideFirestoreBanner();
               }).catch((err) => {
-                console.warn("Initial setDoc error:", err);
                 this.handleFirestoreError(err);
               });
             }
           }, (err) => {
-            console.warn("Firestore listener error:", err);
+            console.warn("Firestore snapshot error:", err);
             this.handleFirestoreError(err);
           });
+
         } catch (e) {
-          console.warn("Firebase Init Error:", e);
+          console.warn("Firebase initialization error:", e);
           this.updateSyncBadge(false, "Local Mode (Offline)");
         }
       },
 
       handleFirestoreError: function(err) {
-        this.updateSyncBadge(false, "Local / Check Rules");
+        this.updateSyncBadge(false, "Local / Security Check");
         const banner = document.getElementById('firestore-notice-banner');
         const msg = document.getElementById('firestore-notice-msg');
         if (banner && msg) {
           banner.classList.remove('hidden');
+          const errDetail = err && err.message ? err.message : String(err);
           msg.innerHTML = `
-            <strong>Firestore Write/Read Notice:</strong> Data is currently staying in your local browser cache because Cloud Firestore permissions are locked.
-            To enable instant syncing between judge phones and your dashboard, go to your 
-            <a href="https://console.firebase.google.com/u/0/project/onlinescoring-721bd/firestore/rules" target="_blank" class="underline font-bold text-amber-200">Firebase Console Rules tab</a> 
-            and set: <code class="bg-amber-950 px-1 py-0.5 rounded font-mono">allow read, write: if true;</code>.
+            <strong>Firestore Real-Time Warning:</strong> Unable to sync with Cloud Firestore (${this.escapeHtml(errDetail)}).<br>
+            Scores are currently saving safely in your local device cache. To enable cross-device live syncing across judge phones, open your 
+            <a href="https://console.firebase.google.com/u/0/project/onlinescoring-721bd/firestore/rules" target="_blank" class="underline font-bold text-amber-200">Firebase Console Rules Tab</a> 
+            and allow read/write access for your event: <code class="bg-amber-950 px-1.5 py-0.5 rounded font-mono text-amber-300">allow read, write: if true;</code>.
           `;
         }
       },
@@ -644,7 +636,7 @@
 
         if (db && eventDocRef) {
           setDoc(eventDocRef, newData, { merge: true }).catch(err => {
-            console.warn("Firestore Write Error:", err);
+            console.warn("Firestore save error:", err);
             this.handleFirestoreError(err);
           });
         }
@@ -687,8 +679,6 @@
         } catch (e) {}
         this.renderAll();
       },
-
-      saveLocalCache: saveLocalCache,
 
       // Calculation Engine
       calculateContestantScore: function(contestantId) {
@@ -784,7 +774,7 @@
           }
         });
         
-        document.getElementById('header-event-title').textContent = this.data.event.title || "EventScore Pro";
+        document.getElementById('header-event-title').textContent = this.data.event.title || "RI Chem Christmas ID Station 2026";
       },
 
       renderOrganizerView: function() {
@@ -885,7 +875,7 @@
         container.innerHTML = (contestants || []).map((cnt) => `
           <div class="glass-card rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-800 hover:border-slate-700">
             <div class="flex items-center gap-3.5 w-full sm:w-auto">
-              <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 text-indigo-300 font-bold flex items-center justify-center text-lg shadow-inner">
+              <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-rose-500/20 border border-amber-500/30 text-amber-300 font-bold flex items-center justify-center text-lg shadow-inner">
                 ${cnt.avatar || '🎭'}
               </span>
               <div class="flex-1">
@@ -1136,7 +1126,7 @@
 
       renderRevealView: function() {
         const { event, judges, criteria, scores } = this.data;
-        document.getElementById('stage-event-title').textContent = event.title || 'Competition Results';
+        document.getElementById('stage-event-title').textContent = event.title || 'RI Chem Christmas ID Station 2026';
         document.getElementById('stage-event-subtitle').textContent = event.subtitle || '';
 
         const sorted = this.getSortedRankings();
@@ -1228,12 +1218,11 @@
         }).join('');
       },
 
-      // Stage Reveal Methods
+      // Stage Reveal Actions
       revealNextRank: function() {
         const sorted = this.getSortedRankings();
         const revealedSet = new Set(this.revealState.revealedRanks);
         
-        // Reveal bottom to top
         for (let idx = sorted.length - 1; idx >= 0; idx--) {
           if (!revealedSet.has(idx)) {
             revealedSet.add(idx);
@@ -1339,7 +1328,7 @@
         const numInput = document.getElementById('add-cnt-num');
 
         if (!nameInput.value.trim()) {
-          this.showToast("Enter a contestant name");
+          this.showToast("Enter a station name");
           return;
         }
 
@@ -1347,8 +1336,8 @@
           id: 'cnt' + Date.now(),
           number: numInput.value || String((this.data.contestants || []).length + 1).padStart(2, '0'),
           name: nameInput.value.trim(),
-          team: teamInput.value.trim() || "Independent",
-          avatar: ['💃', '⚡', '🎭', '🎤', '🎻', '🔥', '🌟', '🎨'][Math.floor(Math.random() * 8)]
+          team: teamInput.value.trim() || "Department",
+          avatar: ['❄️', '🎅', '🍪', '✨', '🚂', '🎄', '🎁', '🔔'][Math.floor(Math.random() * 8)]
         };
 
         const newData = {
@@ -1361,7 +1350,7 @@
         numInput.value = '';
 
         this.saveData(newData);
-        this.showToast("Contestant added!");
+        this.showToast("Station added!");
       },
 
       updateContestant: function(id, field, val) {
@@ -1448,11 +1437,11 @@
 
       loadSampleData: function() {
         this.openModal(
-          "Load Demo Competition Data?",
-          "This will reset current criteria, contestants, judges, and scores to standard demo data.",
+          "Load RI Chem Christmas 2026 Preset Data?",
+          "This will reset current criteria, stations, judges, and scores to default competition values.",
           () => {
             this.saveData(defaultData);
-            this.showToast("Demo competition data loaded!");
+            this.showToast("RI Chem Christmas 2026 data loaded!");
           }
         );
       },
