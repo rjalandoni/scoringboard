@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EventScore Pro - Live Competition Scoring & Reveal System</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Outfit', 'sans-serif'],
+          },
+          colors: {
+            slate: {
+              950: '#070A11',
+              900: '#0F172A',
+              850: '#131C31',
+              800: '#1E293B',
+              700: '#334155',
+            },
+            brand: {
+              gold: '#F59E0B',
+              emerald: '#10B981',
+              indigo: '#6366F1',
+              purple: '#8B5CF6',
+              rose: '#F43F5E',
+            }
+          },
+          keyframes: {
+            glowGold: {
+              '0%': { boxShadow: '0 0 15px rgba(245, 158, 11, 0.3)' },
+              '100%': { boxShadow: '0 0 35px rgba(245, 158, 11, 0.8)' },
+            }
+          },
+          animation: {
+            'glow-gold': 'glowGold 2s ease-in-out infinite alternate',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #070A11; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #6366F1; }
+
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .glass-card-elevated {
+      background: rgba(30, 41, 59, 0.85);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type=number] { -moz-appearance: textfield; }
+  </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen selection:bg-brand-indigo selection:text-white pb-16">
+
+  <!-- Confetti Canvas overlay for Stage Mode -->
+  <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+
+  <!-- TOP HEADER & NAV -->
+  <header class="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-xl border-b border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Brand & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-indigo via-brand-purple to-brand-gold flex items-center justify-center font-display font-black text-white text-lg shadow-lg shadow-indigo-500/20">
+          ES
+        </div>
+        <div>
+          <h1 id="header-event-title" class="font-display font-bold text-sm sm:text-base text-white tracking-tight line-clamp-1">
+            EventScore Pro
+          </h1>
+          <div id="sync-status-badge" class="mt-0.5"></div>
+        </div>
+      </div>
+
+      <!-- Mode Selector -->
+      <div class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+        <button id="nav-btn-organizer" onclick="window.EventApp.setMode('organizer')" class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button id="nav-btn-judge" onclick="window.EventApp.setMode('judge')" class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          <span>Judge Portal</span>
+        </button>
+        <button id="nav-btn-reveal" onclick="window.EventApp.setMode('reveal')" class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+          <span>Stage Reveal</span>
+        </button>
+      </div>
+
+      <!-- Header Copy Action -->
+      <div class="flex items-center gap-2">
+        <button onclick="window.EventApp.copyJudgeLink()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-brand-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          <span class="hidden sm:inline">Copy Portal Link</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN VIEW CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
+
+    <!-- ========================================== -->
+    <!-- VIEW 1: ORGANIZER DASHBOARD & MECHANICS    -->
+    <!-- ========================================== -->
+    <section id="view-organizer" class="space-y-6">
+      
+      <!-- Top Action Bar -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 glass-card p-5 rounded-2xl border border-slate-800">
+        <div>
+          <h2 class="text-xl font-bold font-display text-white">Organizer Command Center</h2>
+          <p class="text-xs text-slate-400">Configure event mechanics, contestants, judges, and inspect live scores.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="window.EventApp.loadSampleData()" class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-600/30 transition-all flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Load Demo Setup
+          </button>
+          <button onclick="window.EventApp.resetAllScores()" class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/30 hover:bg-rose-500/20 transition-all flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            Reset All Scores
+          </button>
+        </div>
+      </div>
+
+      <!-- Dashboard Tabs -->
+      <div class="flex border-b border-slate-800 gap-2 pb-2 overflow-x-auto">
+        <button id="org-tab-mechanics" onclick="window.EventApp.activeTab = 'mechanics'; window.EventApp.renderOrganizerView();" class="px-4 py-2 font-semibold text-sm rounded-lg transition-all">
+          📋 Event & Mechanics
+        </button>
+        <button id="org-tab-contestants" onclick="window.EventApp.activeTab = 'contestants'; window.EventApp.renderOrganizerView();" class="px-4 py-2 font-semibold text-sm rounded-lg transition-all">
+          🎭 Contestants & Teams
+        </button>
+        <button id="org-tab-judges" onclick="window.EventApp.activeTab = 'judges'; window.EventApp.renderOrganizerView();" class="px-4 py-2 font-semibold text-sm rounded-lg transition-all">
+          ⚖️ Adjudicators
+        </button>
+        <button id="org-tab-matrix" onclick="window.EventApp.activeTab = 'matrix'; window.EventApp.renderOrganizerView();" class="px-4 py-2 font-semibold text-sm rounded-lg transition-all">
+          📊 Master Score Matrix
+        </button>
+      </div>
+
+      <!-- TAB 1: MECHANICS & CRITERIA EDITOR -->
+      <div id="org-subview-mechanics" class="space-y-6">
+        
+        <!-- Settings -->
+        <div class="glass-card rounded-2xl p-6 border border-slate-800 space-y-4">
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <span>⚙️ Competition Parameters</span>
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 mb-1">Event Title</label>
+              <input type="text" id="event-title-input" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-brand-indigo">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 mb-1">Category / Subtitle</label>
+              <input type="text" id="event-subtitle-input" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-brand-indigo">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 mb-1">Scoring System Engine</label>
+              <select id="event-mode-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-brand-indigo">
+                <option value="weighted">Weighted Percentage (Sum of Criteria Weights = 100%)</option>
+                <option value="raw">Raw Cumulative Points (Sum of direct criterion scores)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex justify-end pt-1">
+            <button onclick="window.EventApp.saveEventMeta()" class="px-4 py-2 text-xs font-bold rounded-xl bg-brand-indigo hover:bg-indigo-500 text-white shadow-md transition-all">
+              Save Event Info
+            </button>
+          </div>
+        </div>
+
+        <!-- Criteria List Builder -->
+        <div class="space-y-4">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <h3 class="text-lg font-bold text-white">Criteria & Rubrics Builder</h3>
+              <div id="criteria-weight-total"></div>
+            </div>
+            <button onclick="window.EventApp.addCriterion()" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-slate-800 hover:bg-slate-700 text-brand-indigo border border-slate-700 transition-all flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              Add Criterion
+            </button>
+          </div>
+
+          <div id="criteria-list-container" class="space-y-3"></div>
+        </div>
+      </div>
+
+      <!-- TAB 2: CONTESTANTS MANAGER -->
+      <div id="org-subview-contestants" class="space-y-6 hidden">
+        <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-4">
+          <h3 class="text-base font-bold text-white">Add New Contestant / Team</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Badge No.</label>
+              <input type="text" id="add-cnt-num" placeholder="01" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-xs text-slate-400 mb-1">Contestant / Team Name</label>
+              <input type="text" id="add-cnt-name" placeholder="Name or Performance Group" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Organization / School</label>
+              <input type="text" id="add-cnt-team" placeholder="Affiliation" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+            </div>
+          </div>
+          <button onclick="window.EventApp.addContestant()" class="px-4 py-2 text-xs font-bold rounded-xl bg-brand-emerald text-white hover:bg-emerald-600 transition-all">
+            + Add Contestant
+          </button>
+        </div>
+
+        <div id="contestants-list-container" class="space-y-3"></div>
+      </div>
+
+      <!-- TAB 3: JUDGES MANAGER -->
+      <div id="org-subview-judges" class="space-y-6 hidden">
+        <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-4">
+          <h3 class="text-base font-bold text-white">Add Adjudicator / Judge</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Judge Full Name</label>
+              <input type="text" id="add-judge-name" placeholder="e.g. Dr. Marcus Vance" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Title / Designation</label>
+              <input type="text" id="add-judge-title" placeholder="e.g. Choreography Master" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+            </div>
+          </div>
+          <button onclick="window.EventApp.addJudge()" class="px-4 py-2 text-xs font-bold rounded-xl bg-brand-indigo text-white hover:bg-indigo-600 transition-all">
+            + Add Judge
+          </button>
+        </div>
+
+        <div id="judges-list-container" class="space-y-3"></div>
+      </div>
+
+      <!-- TAB 4: MASTER LIVE MATRIX -->
+      <div id="org-subview-matrix" class="space-y-4 hidden">
+        <div class="glass-card rounded-2xl p-5 border border-slate-800">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-white">Live Adjudication Matrix</h3>
+            <span class="text-xs text-slate-400">Real-time judge scoring breakdown</span>
+          </div>
+          <div id="matrix-table-container"></div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW 2: JUDGE SCORING PORTAL               -->
+    <!-- ========================================== -->
+    <section id="view-judge" class="space-y-6 hidden max-w-4xl mx-auto">
+      
+      <!-- Judge Selector Bar -->
+      <div class="glass-card rounded-2xl p-5 border border-slate-800 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-brand-indigo">Official Judge Portal</span>
+            <h2 id="active-judge-display-name" class="text-xl font-bold font-display text-white">Select Profile</h2>
+            <p id="active-judge-display-title" class="text-xs text-slate-400"></p>
+          </div>
+
+          <div class="w-full sm:w-auto">
+            <label class="block text-[10px] uppercase text-slate-400 font-bold mb-1">Switch Active Adjudicator:</label>
+            <select id="judge-select-dropdown" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand-indigo w-full">
+            </select>
+          </div>
+        </div>
+
+        <div id="judge-status-banner"></div>
+      </div>
+
+      <!-- Contestants Cards -->
+      <div id="judge-contestants-container" class="space-y-6"></div>
+
+      <!-- Submission Action -->
+      <div class="pt-4 sticky bottom-4 z-20">
+        <button id="judge-submit-btn" onclick="window.EventApp.submitJudgeScores()"></button>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW 3: STAGE PRESENTATION & REVEAL MODE   -->
+    <!-- ========================================== -->
+    <section id="view-reveal" class="space-y-6 hidden max-w-5xl mx-auto">
+      
+      <!-- Header -->
+      <div class="text-center space-y-2 py-4">
+        <span class="px-4 py-1 rounded-full bg-brand-gold/10 text-brand-gold border border-brand-gold/30 text-xs font-extrabold uppercase tracking-widest inline-block animate-pulse">
+          LIVE CHAMPIONSHIP REVEAL
+        </span>
+        <h2 id="stage-event-title" class="text-3xl sm:text-5xl font-black font-display text-white tracking-tight">
+          Competition Results
+        </h2>
+        <p id="stage-event-subtitle" class="text-sm sm:text-base text-slate-400 font-medium"></p>
+      </div>
+
+      <!-- Presenter Controls Bar -->
+      <div class="glass-card rounded-2xl p-4 border border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-slate-900/95 sticky top-16 z-30 shadow-2xl">
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-slate-400 font-semibold">Stage Controls:</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="window.EventApp.revealNextRank()" class="px-4 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 transition-all active:scale-95 flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            Reveal Next Rank (Bottom to Top)
+          </button>
+          <button onclick="window.EventApp.revealAllRanks()" class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all">
+            Reveal All
+          </button>
+          <button onclick="window.EventApp.hideAllRanks()" class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 border border-slate-700 transition-all">
+            Hide All
+          </button>
+          <button onclick="window.EventApp.toggleJudgeBreakdown()" id="toggle-breakdown-btn" class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-600/30 transition-all">
+            Show Adjudicator Scores
+          </button>
+        </div>
+      </div>
+
+      <!-- Rankings Stage Display -->
+      <div id="stage-rankings-container" class="space-y-4 pt-2"></div>
+
+    </section>
+
+  </main>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="app-toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="glass-card-elevated rounded-xl px-4 py-3 border border-brand-indigo/40 shadow-2xl flex items-center gap-3">
+      <span class="text-brand-indigo text-lg">✨</span>
+      <span id="toast-msg" class="text-xs font-bold text-white"></span>
+    </div>
+  </div>
+
+  <!-- CONFIRMATION MODAL -->
+  <div id="app-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md hidden">
+    <div class="glass-card-elevated rounded-2xl p-6 max-w-md w-full border border-slate-800 space-y-4">
+      <h3 id="modal-title" class="text-lg font-bold text-white">Confirm Action</h3>
+      <p id="modal-desc" class="text-xs text-slate-400 leading-relaxed"></p>
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button onclick="window.EventApp.closeModal()" class="px-4 py-2 text-xs font-semibold rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700">
+          Cancel
+        </button>
+        <button id="modal-confirm-btn" class="px-4 py-2 text-xs font-bold rounded-xl bg-rose-500 text-white hover:bg-rose-600">
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPLICATION JAVASCRIPT & FIREBASE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Global Initial Competition Seed Data
+    const defaultData = {
+      event: {
+        title: "National Performing Arts & Talent Championship 2026",
+        subtitle: "Grand Championship Finals • Live Broadcast",
+        scoringMode: "weighted", // "weighted" or "raw"
+        isLocked: false
+      },
+      criteria: [
+        { id: "c1", name: "Technique & Execution", weight: 35, maxScore: 100, description: "Precision, mastery of difficulty, movement control, and skill execution." },
+        { id: "c2", name: "Creativity & Choreography", weight: 30, maxScore: 100, description: "Originality, artistic vision, seamless transitions, and concept." },
+        { id: "c3", name: "Stage Presence & Impact", weight: 25, maxScore: 100, description: "Audience engagement, charisma, emotional delivery, and expression." },
+        { id: "c4", name: "Costume & Visual Aesthetics", weight: 10, maxScore: 100, description: "Attire cohesion, visual style, and overall stage presentation." }
+      ],
+      contestants: [
+        { id: "cnt1", number: "01", name: "Aria Vance & The Luminaries", team: "Metropolis Dance Theater", avatar: "💃" },
+        { id: "cnt2", number: "02", name: "Quantum Rhythm Crew", team: "East Coast Urban Academy", avatar: "⚡" },
+        { id: "cnt3", number: "03", name: "Symphony of Motion", team: "Royal Ballet Troupe", avatar: "🎻" },
+        { id: "cnt4", number: "04", name: "Apex Dynamics", team: "Pacific Acrobatics Collective", avatar: "🔥" },
+        { id: "cnt5", number: "05", name: "Celestial Harmonies", team: "Vocal Masters Ensemble", avatar: "🎤" }
+      ],
+      judges: [
+        { id: "j1", name: "Dr. Marcus Vance", title: "Head Judge • Choreography Master" },
+        { id: "j2", name: "Elena Rostova", title: "Artistic Director & Performance Critic" },
+        { id: "j3", name: "Julian Thorne", title: "Broadway Director & Talent Adjudicator" }
+      ],
+      scores: {
+        "j1_cnt1_c1": 94, "j1_cnt1_c2": 92, "j1_cnt1_c3": 90, "j1_cnt1_c4": 95,
+        "j2_cnt1_c1": 90, "j2_cnt1_c2": 95, "j2_cnt1_c3": 92, "j2_cnt1_c4": 93,
+        "j3_cnt1_c1": 92, "j3_cnt1_c2": 91, "j3_cnt1_c3": 94, "j3_cnt1_c4": 90,
+
+        "j1_cnt2_c1": 88, "j1_cnt2_c2": 94, "j1_cnt2_c3": 96, "j1_cnt2_c4": 91,
+        "j2_cnt2_c1": 86, "j2_cnt2_c2": 96, "j2_cnt2_c3": 95, "j2_cnt2_c4": 89,
+        "j3_cnt2_c1": 90, "j3_cnt2_c2": 93, "j3_cnt2_c3": 97, "j3_cnt2_c4": 92,
+
+        "j1_cnt3_c1": 96, "j1_cnt3_c2": 89, "j1_cnt3_c3": 91, "j1_cnt3_c4": 94,
+        "j2_cnt3_c1": 95, "j2_cnt3_c2": 88, "j2_cnt3_c3": 90, "j2_cnt3_c4": 96,
+        "j3_cnt3_c1": 97, "j3_cnt3_c2": 90, "j3_cnt3_c3": 92, "j3_cnt3_c4": 95,
+
+        "j1_cnt4_c1": 85, "j1_cnt4_c2": 86, "j1_cnt4_c3": 88, "j1_cnt4_c4": 85,
+        "j2_cnt4_c1": 84, "j2_cnt4_c2": 85, "j2_cnt4_c3": 89, "j2_cnt4_c4": 86,
+
+        "j1_cnt5_c1": 91, "j1_cnt5_c2": 90, "j1_cnt5_c3": 89, "j1_cnt5_c4": 92,
+        "j2_cnt5_c1": 89, "j2_cnt5_c2": 92, "j2_cnt5_c3": 90, "j2_cnt5_c4": 91
+      },
+      submissions: {
+        "j1": true,
+        "j2": true,
+        "j3": false
+      }
+    };
+
+    // Safe Local Storage Reader
+    function loadLocalStorageData() {
+      try {
+        const stored = localStorage.getItem('eventscore_pro_data');
+        if (stored) {
+          return JSON.parse(stored);
+        }
+      } catch (e) {
+        console.warn("localStorage read skipped:", e);
+      }
+      return JSON.parse(JSON.stringify(defaultData));
+    }
+
+    function saveLocalStorageData(data) {
+      try {
+        localStorage.setItem('eventscore_pro_data', JSON.stringify(data));
+      } catch (e) {
+        console.warn("localStorage write skipped:", e);
+      }
+    }
+
+    // Canvas Confetti Fallback Implementation
+    function launchConfetti() {
+      const canvas = document.getElementById('confetti-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const particles = [];
+      const colors = ['#F59E0B', '#10B981', '#6366F1', '#EC4899', '#3B82F6', '#F43F5E'];
+
+      for (let i = 0; i < 120; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2 + 100,
+          vx: (Math.random() - 0.5) * 18,
+          vy: (Math.random() - 0.8) * 18,
+          size: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          vRot: (Math.random() - 0.5) * 10,
+          opacity: 1
+        });
+      }
+
+      let frameCount = 0;
+      function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let active = false;
+
+        particles.forEach(p => {
+          if (p.opacity <= 0) return;
+          active = true;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.3; // gravity
+          p.rotation += p.vRot;
+          p.opacity -= 0.008;
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.globalAlpha = Math.max(0, p.opacity);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 1.5);
+          ctx.restore();
+        });
+
+        frameCount++;
+        if (active && frameCount < 200) {
+          requestAnimationFrame(render);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+
+      render();
+    }
+
+    // Application Global Singleton
+    window.EventApp = {
+      data: loadLocalStorageData(),
+      currentMode: 'organizer', // 'organizer', 'judge', 'reveal'
+      selectedJudgeId: 'j1',
+      activeTab: 'mechanics',
+      revealState: {
+        revealedRanks: [],
+        showJudgesInReveal: false
+      },
+
+      init: async function() {
+        this.parseURLParams();
+        this.setupEventListeners();
+        await this.initFirebase();
+        this.renderAll();
+      },
+
+      parseURLParams: function() {
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          const role = urlParams.get('role') || urlParams.get('mode');
+          const judgeId = urlParams.get('judgeId');
+
+          if (role === 'judge') {
+            this.currentMode = 'judge';
+            if (judgeId) this.selectedJudgeId = judgeId;
+          } else if (role === 'reveal' || role === 'stage') {
+            this.currentMode = 'reveal';
+          } else {
+            this.currentMode = 'organizer';
+          }
+        } catch (e) {
+          console.warn("URL params parsing skipped:", e);
+        }
+      },
+
+      initFirebase: async function() {
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'eventscore-default';
+        let isOnline = false;
+
+        try {
+          if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+            const firebaseConfig = JSON.parse(__firebase_config);
+            const firebaseApp = initializeApp(firebaseConfig);
+            const db = getFirestore(firebaseApp);
+            const auth = getAuth(firebaseApp);
+
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+              await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+              await signInAnonymously(auth);
+            }
+
+            if (auth.currentUser) {
+              isOnline = true;
+              this.updateSyncBadge(true);
+              
+              const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'competition', 'current');
+              onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                  this.data = docSnap.data();
+                  saveLocalStorageData(this.data);
+                  this.renderAll();
+                } else {
+                  setDoc(docRef, this.data, { merge: true });
+                }
+              }, (err) => {
+                console.warn("Firestore snapshot error:", err);
+                this.updateSyncBadge(false);
+              });
+            }
+          }
+        } catch (err) {
+          console.warn("Firebase safely bypassed to local state:", err);
+        }
+
+        if (!isOnline) {
+          this.updateSyncBadge(false);
+        }
+      },
+
+      saveData: function(newData) {
+        this.data = newData;
+        saveLocalStorageData(newData);
+        this.renderAll();
+
+        // Safe Firestore write try
+        try {
+          if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'eventscore-default';
+            const firebaseConfig = JSON.parse(__firebase_config);
+            const firebaseApp = initializeApp(firebaseConfig);
+            const db = getFirestore(firebaseApp);
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'competition', 'current');
+            setDoc(docRef, newData, { merge: true }).catch(() => {});
+          }
+        } catch (e) {
+          // Ignored if offline
+        }
+      },
+
+      updateSyncBadge: function(isOnline) {
+        const badge = document.getElementById('sync-status-badge');
+        if (!badge) return;
+        if (isOnline) {
+          badge.className = "px-2.5 py-0.5 text-[11px] font-semibold rounded-full flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
+          badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Cloud Synced`;
+        } else {
+          badge.className = "px-2.5 py-0.5 text-[11px] font-semibold rounded-full flex items-center gap-1.5 bg-amber-500/10 text-amber-400 border border-amber-500/30";
+          badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Local / Offline Mode`;
+        }
+      },
+
+      setMode: function(mode) {
+        this.currentMode = mode;
+        try {
+          const url = new URL(window.location);
+          url.searchParams.set('role', mode);
+          if (mode === 'judge') {
+            url.searchParams.set('judgeId', this.selectedJudgeId);
+          } else {
+            url.searchParams.delete('judgeId');
+          }
+          window.history.pushState({}, '', url);
+        } catch (e) {
+          // Safe catch for iframe security
+        }
+        this.renderAll();
+      },
+
+      setJudgeId: function(judgeId) {
+        this.selectedJudgeId = judgeId;
+        try {
+          const url = new URL(window.location);
+          url.searchParams.set('role', 'judge');
+          url.searchParams.set('judgeId', judgeId);
+          window.history.pushState({}, '', url);
+        } catch (e) {}
+        this.renderAll();
+      },
+
+      // Calculation Core
+      calculateContestantScore: function(contestantId) {
+        const { criteria, judges, scores, event } = this.data;
+        if (!judges || judges.length === 0 || !criteria) return { total: 0, criteriaAverages: {} };
+
+        let criteriaTotals = {};
+        let criteriaCounts = {};
+
+        criteria.forEach(c => {
+          criteriaTotals[c.id] = 0;
+          criteriaCounts[c.id] = 0;
+        });
+
+        judges.forEach(j => {
+          criteria.forEach(c => {
+            const key = `${j.id}_${contestantId}_${c.id}`;
+            if (scores[key] !== undefined && scores[key] !== null && scores[key] !== "") {
+              criteriaTotals[c.id] += Number(scores[key]);
+              criteriaCounts[c.id] += 1;
+            }
+          });
+        });
+
+        let criteriaAverages = {};
+        let grandScore = 0;
+
+        criteria.forEach(c => {
+          const avgScore = criteriaCounts[c.id] > 0 ? (criteriaTotals[c.id] / criteriaCounts[c.id]) : 0;
+          criteriaAverages[c.id] = avgScore;
+
+          if (event.scoringMode === 'weighted') {
+            const weightPct = Number(c.weight || 0) / 100;
+            const max = Number(c.maxScore || 100);
+            const scoreRatio = max > 0 ? (avgScore / max) : 0;
+            grandScore += (scoreRatio * Number(c.weight || 0));
+          } else {
+            grandScore += avgScore;
+          }
+        });
+
+        return {
+          total: Number(grandScore.toFixed(2)),
+          criteriaAverages: criteriaAverages
+        };
+      },
+
+      getSortedRankings: function() {
+        const { contestants } = this.data;
+        if (!contestants) return [];
+
+        const ranked = contestants.map(cnt => {
+          const scoreData = this.calculateContestantScore(cnt.id);
+          return {
+            ...cnt,
+            finalScore: scoreData.total,
+            criteriaAverages: scoreData.criteriaAverages
+          };
+        });
+
+        ranked.sort((a, b) => b.finalScore - a.finalScore);
+        return ranked;
+      },
+
+      renderAll: function() {
+        this.renderHeader();
+        
+        document.getElementById('view-organizer').classList.add('hidden');
+        document.getElementById('view-judge').classList.add('hidden');
+        document.getElementById('view-reveal').classList.add('hidden');
+
+        if (this.currentMode === 'organizer') {
+          document.getElementById('view-organizer').classList.remove('hidden');
+          this.renderOrganizerView();
+        } else if (this.currentMode === 'judge') {
+          document.getElementById('view-judge').classList.remove('hidden');
+          this.renderJudgeView();
+        } else if (this.currentMode === 'reveal') {
+          document.getElementById('view-reveal').classList.remove('hidden');
+          this.renderRevealView();
+        }
+      },
+
+      renderHeader: function() {
+        ['organizer', 'judge', 'reveal'].forEach(m => {
+          const btn = document.getElementById(`nav-btn-${m}`);
+          if (btn) {
+            if (this.currentMode === m) {
+              btn.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-indigo/20 text-brand-indigo border border-brand-indigo/40 shadow-sm transition-all flex items-center gap-1.5";
+            } else {
+              btn.className = "px-3 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all flex items-center gap-1.5";
+            }
+          }
+        });
+        
+        document.getElementById('header-event-title').textContent = this.data.event.title || "EventScore Pro";
+      },
+
+      renderOrganizerView: function() {
+        ['mechanics', 'contestants', 'judges', 'matrix'].forEach(t => {
+          const tabBtn = document.getElementById(`org-tab-${t}`);
+          const subView = document.getElementById(`org-subview-${t}`);
+          
+          if (tabBtn) {
+            if (this.activeTab === t) {
+              tabBtn.className = "px-4 py-2 font-semibold text-sm rounded-lg bg-slate-800 text-white border border-slate-700 shadow-md transition-all";
+            } else {
+              tabBtn.className = "px-4 py-2 font-medium text-sm rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 transition-all";
+            }
+          }
+          if (subView) {
+            if (this.activeTab === t) subView.classList.remove('hidden');
+            else subView.classList.add('hidden');
+          }
+        });
+
+        if (this.activeTab === 'mechanics') this.renderMechanicsEditor();
+        if (this.activeTab === 'contestants') this.renderContestantsManager();
+        if (this.activeTab === 'judges') this.renderJudgesManager();
+        if (this.activeTab === 'matrix') this.renderLiveScoreMatrix();
+      },
+
+      renderMechanicsEditor: function() {
+        const { event, criteria } = this.data;
+        document.getElementById('event-title-input').value = event.title || '';
+        document.getElementById('event-subtitle-input').value = event.subtitle || '';
+        document.getElementById('event-mode-select').value = event.scoringMode || 'weighted';
+
+        const totalWeight = (criteria || []).reduce((sum, c) => sum + Number(c.weight || 0), 0);
+        const weightBadge = document.getElementById('criteria-weight-total');
+        if (weightBadge) {
+          if (event.scoringMode === 'weighted') {
+            weightBadge.classList.remove('hidden');
+            if (totalWeight === 100) {
+              weightBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+              weightBadge.textContent = `Total Weight: ${totalWeight}% ✓ (Valid 100%)`;
+            } else {
+              weightBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 animate-pulse";
+              weightBadge.textContent = `Total Weight: ${totalWeight}% (Must equal 100%)`;
+            }
+          } else {
+            weightBadge.classList.add('hidden');
+          }
+        }
+
+        const listContainer = document.getElementById('criteria-list-container');
+        listContainer.innerHTML = (criteria || []).map((c, idx) => `
+          <div class="glass-card rounded-xl p-4 sm:p-5 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between border border-slate-800 hover:border-slate-700 transition-all">
+            <div class="flex-1 space-y-3 w-full">
+              <div class="flex flex-col sm:flex-row gap-3">
+                <div class="flex-1">
+                  <label class="block text-xs font-semibold text-slate-400 mb-1">Criterion Name</label>
+                  <input type="text" value="${this.escapeHtml(c.name)}" 
+                    onchange="window.EventApp.updateCriterion('${c.id}', 'name', this.value)"
+                    class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-brand-indigo">
+                </div>
+                ${event.scoringMode === 'weighted' ? `
+                <div class="w-full sm:w-28">
+                  <label class="block text-xs font-semibold text-slate-400 mb-1">Weight (%)</label>
+                  <input type="number" value="${c.weight}" min="0" max="100"
+                    onchange="window.EventApp.updateCriterion('${c.id}', 'weight', Number(this.value))"
+                    class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-amber-400 font-bold focus:outline-none focus:border-brand-indigo">
+                </div>
+                ` : ''}
+                <div class="w-full sm:w-28">
+                  <label class="block text-xs font-semibold text-slate-400 mb-1">Max Points</label>
+                  <input type="number" value="${c.maxScore}" min="1" max="1000"
+                    onchange="window.EventApp.updateCriterion('${c.id}', 'maxScore', Number(this.value))"
+                    class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-brand-indigo">
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">Rubric / Instructions for Judges</label>
+                <input type="text" value="${this.escapeHtml(c.description || '')}" placeholder="Scoring rules or breakdown..."
+                  onchange="window.EventApp.updateCriterion('${c.id}', 'description', this.value)"
+                  class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-brand-indigo">
+              </div>
+            </div>
+            
+            <div class="flex items-center gap-1.5 self-end md:self-center">
+              <button onclick="window.EventApp.moveCriterion('${c.id}', -1)" ${idx === 0 ? 'disabled' : ''} class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 disabled:opacity-30" title="Move Up">↑</button>
+              <button onclick="window.EventApp.moveCriterion('${c.id}', 1)" ${idx === criteria.length - 1 ? 'disabled' : ''} class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 disabled:opacity-30" title="Move Down">↓</button>
+              <button onclick="window.EventApp.deleteCriterion('${c.id}')" class="text-rose-400 hover:text-rose-300 p-2 rounded-lg hover:bg-rose-500/10 transition-all ml-2" title="Delete">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              </button>
+            </div>
+          </div>
+        `).join('');
+      },
+
+      renderContestantsManager: function() {
+        const { contestants } = this.data;
+        const container = document.getElementById('contestants-list-container');
+        container.innerHTML = (contestants || []).map((cnt) => `
+          <div class="glass-card rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-800 hover:border-slate-700">
+            <div class="flex items-center gap-3.5 w-full sm:w-auto">
+              <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 text-indigo-300 font-bold flex items-center justify-center text-lg shadow-inner">
+                ${cnt.avatar || '🎭'}
+              </span>
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">#${cnt.number}</span>
+                  <input type="text" value="${this.escapeHtml(cnt.name)}" 
+                    onchange="window.EventApp.updateContestant('${cnt.id}', 'name', this.value)"
+                    class="bg-transparent font-bold text-white text-base focus:outline-none border-b border-transparent focus:border-brand-indigo px-1">
+                </div>
+                <input type="text" value="${this.escapeHtml(cnt.team)}" placeholder="Team / Affiliation"
+                  onchange="window.EventApp.updateContestant('${cnt.id}', 'team', this.value)"
+                  class="bg-transparent text-xs text-slate-400 focus:outline-none border-b border-transparent focus:border-brand-indigo px-1 w-full mt-0.5">
+              </div>
+            </div>
+            <button onclick="window.EventApp.deleteContestant('${cnt.id}')" class="text-rose-400 hover:text-rose-300 p-2 rounded-lg hover:bg-rose-500/10 transition-all self-end sm:self-center" title="Delete Contestant">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+          </div>
+        `).join('');
+      },
+
+      renderJudgesManager: function() {
+        const { judges, contestants, scores, submissions } = this.data;
+        const container = document.getElementById('judges-list-container');
+        
+        container.innerHTML = (judges || []).map(j => {
+          let scoredCount = 0;
+          (contestants || []).forEach(cnt => {
+            const hasScore = Object.keys(scores || {}).some(k => k.startsWith(`${j.id}_${cnt.id}_`) && scores[k] !== undefined && scores[k] !== "");
+            if (hasScore) scoredCount++;
+          });
+
+          const isSubmitted = submissions && submissions[j.id];
+
+          return `
+            <div class="glass-card rounded-xl p-5 border border-slate-800 hover:border-slate-700 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div class="space-y-1 flex-1">
+                <div class="flex items-center gap-3">
+                  <input type="text" value="${this.escapeHtml(j.name)}" 
+                    onchange="window.EventApp.updateJudge('${j.id}', 'name', this.value)"
+                    class="bg-transparent font-bold text-white text-base focus:outline-none border-b border-transparent focus:border-brand-indigo px-1">
+                  ${isSubmitted 
+                    ? `<span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">✓ Submitted</span>`
+                    : `<span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1">⏳ Progress (${scoredCount}/${contestants.length})</span>`
+                  }
+                </div>
+                <input type="text" value="${this.escapeHtml(j.title)}" placeholder="Designation"
+                  onchange="window.EventApp.updateJudge('${j.id}', 'title', this.value)"
+                  class="bg-transparent text-xs text-slate-400 focus:outline-none border-b border-transparent focus:border-brand-indigo px-1 w-full">
+              </div>
+
+              <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                <button onclick="window.EventApp.copyJudgeDirectLink('${j.id}')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 flex items-center gap-1.5 transition-all">
+                  <svg class="w-3.5 h-3.5 text-brand-indigo" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                  Copy Judge Link
+                </button>
+                <button onclick="window.EventApp.openAsJudge('${j.id}')" class="px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-xs font-semibold text-indigo-300 transition-all">
+                  Open Portal ↗
+                </button>
+                <button onclick="window.EventApp.deleteJudge('${j.id}')" class="text-rose-400 hover:text-rose-300 p-2 rounded-lg hover:bg-rose-500/10 transition-all" title="Delete Judge">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      },
+
+      renderLiveScoreMatrix: function() {
+        const { judges, criteria, scores } = this.data;
+        const container = document.getElementById('matrix-table-container');
+
+        const rankedList = this.getSortedRankings();
+
+        let html = `
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300 border-collapse">
+              <thead>
+                <tr class="bg-slate-900/90 border-b border-slate-800 text-slate-400 font-semibold uppercase tracking-wider">
+                  <th class="p-3 sticky left-0 bg-slate-900 z-10">Rank & Contestant</th>
+                  ${(judges || []).map(j => `<th class="p-3 text-center border-l border-slate-800/60">${this.escapeHtml(j.name)}</th>`).join('')}
+                  <th class="p-3 text-right bg-slate-800/40 text-amber-400 border-l border-slate-800 font-bold">Final Score</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/60">
+        `;
+
+        rankedList.forEach((cnt, idx) => {
+          const rankNum = idx + 1;
+          let rankBadge = `<span class="font-bold text-slate-400">#${rankNum}</span>`;
+          if (rankNum === 1) rankBadge = `<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-extrabold border border-amber-500/40">🥇 1st</span>`;
+          if (rankNum === 2) rankBadge = `<span class="px-2 py-0.5 rounded bg-slate-400/20 text-slate-200 font-bold border border-slate-400/40">🥈 2nd</span>`;
+          if (rankNum === 3) rankBadge = `<span class="px-2 py-0.5 rounded bg-amber-700/20 text-amber-500 font-bold border border-amber-700/40">🥉 3rd</span>`;
+
+          html += `
+            <tr class="hover:bg-slate-800/30 transition-colors">
+              <td class="p-3 sticky left-0 bg-slate-950 font-medium z-10">
+                <div class="flex items-center gap-2">
+                  ${rankBadge}
+                  <div>
+                    <div class="font-bold text-white">${this.escapeHtml(cnt.name)}</div>
+                    <div class="text-[10px] text-slate-400">${this.escapeHtml(cnt.team)}</div>
+                  </div>
+                </div>
+              </td>
+          `;
+
+          (judges || []).forEach(j => {
+            let judgeTotal = 0;
+            (criteria || []).forEach(c => {
+              const key = `${j.id}_${cnt.id}_${c.id}`;
+              const val = scores[key] || 0;
+              judgeTotal += Number(val);
+            });
+
+            html += `
+              <td class="p-3 text-center border-l border-slate-800/40 font-mono">
+                ${judgeTotal > 0 ? `<span class="text-slate-200 font-semibold">${judgeTotal.toFixed(1)}</span>` : `<span class="text-slate-600">-</span>`}
+              </td>
+            `;
+          });
+
+          html += `
+              <td class="p-3 text-right font-mono font-extrabold text-sm text-amber-400 bg-amber-500/5 border-l border-slate-800">
+                ${cnt.finalScore.toFixed(2)}
+              </td>
+            </tr>
+          `;
+        });
+
+        html += `</tbody></table></div>`;
+        container.innerHTML = html;
+      },
+
+      renderJudgeView: function() {
+        const { judges, contestants, criteria, scores, event, submissions } = this.data;
+        const selector = document.getElementById('judge-select-dropdown');
+        if (selector) {
+          selector.innerHTML = (judges || []).map(j => `<option value="${j.id}" ${j.id === this.selectedJudgeId ? 'selected' : ''}>${this.escapeHtml(j.name)} (${j.title})</option>`).join('');
+        }
+
+        const activeJudge = (judges || []).find(j => j.id === this.selectedJudgeId) || (judges || [])[0];
+        if (!activeJudge) return;
+
+        document.getElementById('active-judge-display-name').textContent = activeJudge.name;
+        document.getElementById('active-judge-display-title').textContent = activeJudge.title;
+
+        const isSubmitted = submissions && submissions[activeJudge.id];
+        const statusBanner = document.getElementById('judge-status-banner');
+        if (statusBanner) {
+          if (isSubmitted) {
+            statusBanner.className = "p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold flex items-center justify-between";
+            statusBanner.innerHTML = `<span>✓ Official Scorecard Submitted & Locked.</span> <span class="text-[10px] opacity-75">Finalized</span>`;
+          } else {
+            statusBanner.className = "p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold flex items-center justify-between";
+            statusBanner.innerHTML = `<span>✏️ Scoring Mode Active</span> <span class="text-[10px] text-slate-400">Live Auto-Sync</span>`;
+          }
+        }
+
+        const cardsContainer = document.getElementById('judge-contestants-container');
+        cardsContainer.innerHTML = (contestants || []).map(cnt => {
+          let contestantTotal = 0;
+
+          const criteriaInputsHtml = (criteria || []).map(c => {
+            const scoreKey = `${activeJudge.id}_${cnt.id}_${c.id}`;
+            const val = scores[scoreKey] !== undefined ? scores[scoreKey] : 0;
+            
+            const maxVal = Number(c.maxScore || 100);
+            const weightVal = Number(c.weight || 0);
+
+            let weightedContrib = val;
+            if (event.scoringMode === 'weighted') {
+              weightedContrib = maxVal > 0 ? (val / maxVal) * weightVal : 0;
+              contestantTotal += Number(weightedContrib);
+            } else {
+              contestantTotal += Number(val);
+            }
+
+            return `
+              <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 space-y-2">
+                <div class="flex items-center justify-between gap-2">
+                  <div>
+                    <span class="text-xs font-bold text-white">${this.escapeHtml(c.name)}</span>
+                    ${event.scoringMode === 'weighted' ? `<span class="text-[10px] text-amber-400 font-semibold ml-1 font-mono">(${weightVal}%)</span>` : ''}
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <input type="number" min="0" max="${maxVal}" value="${val}"
+                      ${isSubmitted ? 'disabled' : ''}
+                      onchange="window.EventApp.saveJudgeScore('${activeJudge.id}', '${cnt.id}', '${c.id}', this.value)"
+                      class="w-16 bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-center font-mono font-bold text-white text-sm focus:outline-none focus:border-brand-indigo">
+                    <span class="text-xs text-slate-500">/ ${maxVal}</span>
+                  </div>
+                </div>
+
+                ${c.description ? `<p class="text-[11px] text-slate-400 leading-tight">${this.escapeHtml(c.description)}</p>` : ''}
+
+                <div class="pt-1">
+                  <input type="range" min="0" max="${maxVal}" value="${val}"
+                    ${isSubmitted ? 'disabled' : ''}
+                    oninput="window.EventApp.saveJudgeScore('${activeJudge.id}', '${cnt.id}', '${c.id}', this.value)"
+                    class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-indigo">
+                </div>
+              </div>
+            `;
+          }).join('');
+
+          return `
+            <div class="glass-card rounded-2xl p-5 border border-slate-800 space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                <div class="flex items-center gap-3">
+                  <span class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 text-lg flex items-center justify-center">
+                    ${cnt.avatar || '🎭'}
+                  </span>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-mono px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/30">#${cnt.number}</span>
+                      <h3 class="font-bold text-white text-lg">${this.escapeHtml(cnt.name)}</h3>
+                    </div>
+                    <p class="text-xs text-slate-400">${this.escapeHtml(cnt.team)}</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Calculated Total</div>
+                  <div class="text-xl font-mono font-extrabold text-amber-400">${contestantTotal.toFixed(1)} <span class="text-xs text-slate-500 font-normal">pts</span></div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                ${criteriaInputsHtml}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        const submitBtn = document.getElementById('judge-submit-btn');
+        if (submitBtn) {
+          if (isSubmitted) {
+            submitBtn.textContent = "Scorecard Submitted ✓";
+            submitBtn.disabled = true;
+            submitBtn.className = "w-full py-3.5 rounded-xl font-bold text-sm bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700";
+          } else {
+            submitBtn.textContent = "Submit Official Final Scorecard";
+            submitBtn.disabled = false;
+            submitBtn.className = "w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white shadow-lg shadow-emerald-500/20 transition-all active:scale-[0.99]";
+          }
+        }
+      },
+
+      renderRevealView: function() {
+        const { event, judges, criteria, scores } = this.data;
+        document.getElementById('stage-event-title').textContent = event.title || 'Competition Results';
+        document.getElementById('stage-event-subtitle').textContent = event.subtitle || '';
+
+        const sorted = this.getSortedRankings();
+        const container = document.getElementById('stage-rankings-container');
+        const revealedSet = new Set(this.revealState.revealedRanks);
+        const showJudges = this.revealState.showJudgesInReveal;
+
+        const toggleBtn = document.getElementById('toggle-breakdown-btn');
+        if (toggleBtn) {
+          toggleBtn.textContent = showJudges ? "Hide Adjudicator Breakdown" : "Show Adjudicator Breakdown";
+        }
+
+        container.innerHTML = sorted.map((cnt, idx) => {
+          const rankNum = idx + 1;
+          const isRevealed = revealedSet.has(idx);
+
+          let rankBadge = `<span class="text-slate-500 font-mono text-xs">RANK ${rankNum}</span>`;
+          let cardGlow = "border-slate-800 bg-slate-900/60";
+          
+          if (rankNum === 1 && isRevealed) {
+            rankBadge = `<span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 font-black text-xs sm:text-sm border border-amber-500/50 shadow-lg shadow-amber-500/20 animate-glow-gold">🥇 GRAND CHAMPION</span>`;
+            cardGlow = "border-amber-500/60 bg-gradient-to-r from-amber-950/40 via-slate-900 to-amber-950/40 shadow-2xl shadow-amber-500/10";
+          } else if (rankNum === 2 && isRevealed) {
+            rankBadge = `<span class="px-3 py-1 rounded-full bg-slate-300/20 text-slate-200 font-bold text-xs sm:text-sm border border-slate-300/40">🥈 2ND PLACE</span>`;
+            cardGlow = "border-slate-400/50 bg-slate-900/80";
+          } else if (rankNum === 3 && isRevealed) {
+            rankBadge = `<span class="px-3 py-1 rounded-full bg-amber-700/20 text-amber-400 font-bold text-xs sm:text-sm border border-amber-700/40">🥉 3RD PLACE</span>`;
+            cardGlow = "border-amber-700/50 bg-slate-900/80";
+          }
+
+          let judgesBreakdownHtml = '';
+          if (showJudges && isRevealed) {
+            judgesBreakdownHtml = `
+              <div class="mt-4 pt-4 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                ${(judges || []).map(j => {
+                  let judgeTotal = 0;
+                  (criteria || []).forEach(c => {
+                    judgeTotal += Number(scores[`${j.id}_${cnt.id}_${c.id}`] || 0);
+                  });
+                  return `
+                    <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-800 flex justify-between items-center">
+                      <span class="text-slate-400 truncate pr-1">${this.escapeHtml(j.name)}:</span>
+                      <span class="font-mono font-bold text-slate-200">${judgeTotal.toFixed(1)}</span>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            `;
+          }
+
+          return `
+            <div onclick="window.EventApp.toggleRevealRank(${idx})" 
+              class="relative cursor-pointer transition-all duration-500 transform ${isRevealed ? 'scale-100 opacity-100' : 'scale-[0.98] opacity-75 hover:opacity-90'}">
+              
+              <div class="glass-card rounded-2xl p-5 border ${cardGlow} transition-all">
+                <div class="flex items-center justify-between gap-4">
+                  <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center text-2xl font-bold shadow-inner">
+                      ${cnt.avatar || '🎭'}
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-2 mb-0.5">
+                        ${rankBadge}
+                        <span class="text-xs font-mono text-slate-400">#${cnt.number}</span>
+                      </div>
+                      <h3 class="text-xl sm:text-2xl font-black text-white font-display tracking-tight">${this.escapeHtml(cnt.name)}</h3>
+                      <p class="text-xs sm:text-sm text-slate-400 font-medium">${this.escapeHtml(cnt.team)}</p>
+                    </div>
+                  </div>
+
+                  <div class="text-right">
+                    ${isRevealed ? `
+                      <div class="text-[10px] uppercase tracking-widest text-emerald-400 font-semibold mb-0.5">Final Score</div>
+                      <div class="text-3xl sm:text-4xl font-mono font-black ${rankNum === 1 ? 'text-amber-400' : 'text-white'}">
+                        ${cnt.finalScore.toFixed(2)}
+                      </div>
+                    ` : `
+                      <div class="px-5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-600 font-mono font-bold text-base tracking-widest select-none">
+                        HIDDEN
+                      </div>
+                    `}
+                  </div>
+                </div>
+
+                ${judgesBreakdownHtml}
+              </div>
+            </div>
+          `;
+        }).join('');
+      },
+
+      // Stage Reveal Controls
+      revealNextRank: function() {
+        const sorted = this.getSortedRankings();
+        const revealedSet = new Set(this.revealState.revealedRanks);
+        
+        // Reveal bottom up
+        for (let idx = sorted.length - 1; idx >= 0; idx--) {
+          if (!revealedSet.has(idx)) {
+            revealedSet.add(idx);
+            this.revealState.revealedRanks = Array.from(revealedSet);
+            if (idx === 0) launchConfetti();
+            break;
+          }
+        }
+        this.renderRevealView();
+      },
+
+      revealAllRanks: function() {
+        const sorted = this.getSortedRankings();
+        this.revealState.revealedRanks = sorted.map((_, idx) => idx);
+        launchConfetti();
+        this.renderRevealView();
+      },
+
+      hideAllRanks: function() {
+        this.revealState.revealedRanks = [];
+        this.renderRevealView();
+      },
+
+      toggleRevealRank: function(idx) {
+        const revealedSet = new Set(this.revealState.revealedRanks);
+        if (revealedSet.has(idx)) {
+          revealedSet.delete(idx);
+        } else {
+          revealedSet.add(idx);
+          if (idx === 0) launchConfetti();
+        }
+        this.revealState.revealedRanks = Array.from(revealedSet);
+        this.renderRevealView();
+      },
+
+      toggleJudgeBreakdown: function() {
+        this.revealState.showJudgesInReveal = !this.revealState.showJudgesInReveal;
+        this.renderRevealView();
+      },
+
+      // Action Operations
+      saveEventMeta: function() {
+        const title = document.getElementById('event-title-input').value;
+        const subtitle = document.getElementById('event-subtitle-input').value;
+        const mode = document.getElementById('event-mode-select').value;
+
+        const newData = {
+          ...this.data,
+          event: {
+            ...this.data.event,
+            title,
+            subtitle,
+            scoringMode: mode
+          }
+        };
+        this.saveData(newData);
+        this.showToast("Event configuration saved!");
+      },
+
+      addCriterion: function() {
+        const id = 'c' + Date.now();
+        const newCriterion = {
+          id: id,
+          name: "New Criterion",
+          weight: 10,
+          maxScore: 100,
+          description: "Criterion scoring guidelines..."
+        };
+        const newData = {
+          ...this.data,
+          criteria: [...(this.data.criteria || []), newCriterion]
+        };
+        this.saveData(newData);
+      },
+
+      updateCriterion: function(id, field, val) {
+        const updated = (this.data.criteria || []).map(c => c.id === id ? { ...c, [field]: val } : c);
+        this.saveData({ ...this.data, criteria: updated });
+      },
+
+      moveCriterion: function(id, direction) {
+        const list = [...(this.data.criteria || [])];
+        const idx = list.findIndex(c => c.id === id);
+        if (idx < 0) return;
+        const newIdx = idx + direction;
+        if (newIdx < 0 || newIdx >= list.length) return;
+
+        const temp = list[idx];
+        list[idx] = list[newIdx];
+        list[newIdx] = temp;
+
+        this.saveData({ ...this.data, criteria: list });
+      },
+
+      deleteCriterion: function(id) {
+        const updated = (this.data.criteria || []).filter(c => c.id !== id);
+        this.saveData({ ...this.data, criteria: updated });
+      },
+
+      addContestant: function() {
+        const nameInput = document.getElementById('add-cnt-name');
+        const teamInput = document.getElementById('add-cnt-team');
+        const numInput = document.getElementById('add-cnt-num');
+
+        if (!nameInput.value.trim()) {
+          this.showToast("Enter a contestant name");
+          return;
+        }
+
+        const newCnt = {
+          id: 'cnt' + Date.now(),
+          number: numInput.value || String((this.data.contestants || []).length + 1).padStart(2, '0'),
+          name: nameInput.value.trim(),
+          team: teamInput.value.trim() || "Independent",
+          avatar: ['💃', '⚡', '🎭', '🎤', '🎻', '🔥', '🌟', '🎨'][Math.floor(Math.random() * 8)]
+        };
+
+        const newData = {
+          ...this.data,
+          contestants: [...(this.data.contestants || []), newCnt]
+        };
+
+        nameInput.value = '';
+        teamInput.value = '';
+        numInput.value = '';
+
+        this.saveData(newData);
+        this.showToast("Contestant added!");
+      },
+
+      updateContestant: function(id, field, val) {
+        const updated = (this.data.contestants || []).map(cnt => cnt.id === id ? { ...cnt, [field]: val } : cnt);
+        this.saveData({ ...this.data, contestants: updated });
+      },
+
+      deleteContestant: function(id) {
+        const updated = (this.data.contestants || []).filter(cnt => cnt.id !== id);
+        this.saveData({ ...this.data, contestants: updated });
+      },
+
+      addJudge: function() {
+        const nameInput = document.getElementById('add-judge-name');
+        const titleInput = document.getElementById('add-judge-title');
+
+        if (!nameInput.value.trim()) {
+          this.showToast("Enter judge name");
+          return;
+        }
+
+        const newJ = {
+          id: 'j' + Date.now(),
+          name: nameInput.value.trim(),
+          title: titleInput.value.trim() || "Official Adjudicator"
+        };
+
+        const newData = {
+          ...this.data,
+          judges: [...(this.data.judges || []), newJ]
+        };
+
+        nameInput.value = '';
+        titleInput.value = '';
+
+        this.saveData(newData);
+        this.showToast("Judge added!");
+      },
+
+      updateJudge: function(id, field, val) {
+        const updated = (this.data.judges || []).map(j => j.id === id ? { ...j, [field]: val } : j);
+        this.saveData({ ...this.data, judges: updated });
+      },
+
+      deleteJudge: function(id) {
+        const updated = (this.data.judges || []).filter(j => j.id !== id);
+        this.saveData({ ...this.data, judges: updated });
+      },
+
+      saveJudgeScore: function(judgeId, cntId, criterionId, scoreVal) {
+        const key = `${judgeId}_${cntId}_${criterionId}`;
+        const newScores = {
+          ...(this.data.scores || {}),
+          [key]: Number(scoreVal)
+        };
+        this.saveData({ ...this.data, scores: newScores });
+      },
+
+      submitJudgeScores: function() {
+        const judgeId = this.selectedJudgeId;
+        const newSubmissions = {
+          ...(this.data.submissions || {}),
+          [judgeId]: true
+        };
+        this.saveData({ ...this.data, submissions: newSubmissions });
+        this.showToast("Official scorecard submitted!");
+      },
+
+      resetAllScores: function() {
+        this.openModal(
+          "Reset All Competition Scores?",
+          "Are you sure you want to clear all judge scores and reset submission status? This action cannot be undone.",
+          () => {
+            const newData = {
+              ...this.data,
+              scores: {},
+              submissions: {}
+            };
+            this.saveData(newData);
+            this.showToast("All scores cleared.");
+          }
+        );
+      },
+
+      loadSampleData: function() {
+        this.openModal(
+          "Load Demo Competition Data?",
+          "This will reset current criteria, contestants, judges, and scores to standard championship demo data.",
+          () => {
+            this.saveData(defaultData);
+            this.showToast("Demo competition data loaded!");
+          }
+        );
+      },
+
+      openAsJudge: function(judgeId) {
+        this.selectedJudgeId = judgeId;
+        this.setMode('judge');
+      },
+
+      copyJudgeLink: function() {
+        try {
+          const link = `${window.location.origin}${window.location.pathname}?role=judge`;
+          this.copyToClipboard(link, "General Judge portal link copied!");
+        } catch (e) {
+          this.showToast("Judge Portal Link Ready");
+        }
+      },
+
+      copyJudgeDirectLink: function(judgeId) {
+        try {
+          const link = `${window.location.origin}${window.location.pathname}?role=judge&judgeId=${judgeId}`;
+          this.copyToClipboard(link, "Direct Judge invite link copied!");
+        } catch (e) {
+          this.showToast("Direct Judge Link Ready");
+        }
+      },
+
+      copyToClipboard: function(text, successMsg) {
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+              this.showToast(successMsg);
+            }).catch(() => {
+              this.fallbackCopy(text, successMsg);
+            });
+          } else {
+            this.fallbackCopy(text, successMsg);
+          }
+        } catch (e) {
+          this.fallbackCopy(text, successMsg);
+        }
+      },
+
+      fallbackCopy: function(text, successMsg) {
+        try {
+          const textArea = document.createElement("textarea");
+          textArea.value = text;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          this.showToast(successMsg);
+        } catch (err) {
+          this.showToast(successMsg);
+        }
+      },
+
+      showToast: function(msg) {
+        const toast = document.getElementById('app-toast');
+        if (!toast) return;
+        document.getElementById('toast-msg').textContent = msg;
+        toast.classList.remove('translate-y-20', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+        setTimeout(() => {
+          toast.classList.remove('translate-y-0', 'opacity-100');
+          toast.classList.add('translate-y-20', 'opacity-0');
+        }, 3000);
+      },
+
+      openModal: function(title, desc, onConfirm) {
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-desc').textContent = desc;
+        const confirmBtn = document.getElementById('modal-confirm-btn');
+        confirmBtn.onclick = () => {
+          onConfirm();
+          this.closeModal();
+        };
+        document.getElementById('app-modal').classList.remove('hidden');
+      },
+
+      closeModal: function() {
+        document.getElementById('app-modal').classList.add('hidden');
+      },
+
+      escapeHtml: function(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      },
+
+      setupEventListeners: function() {
+        const judgeSelect = document.getElementById('judge-select-dropdown');
+        if (judgeSelect) {
+          judgeSelect.addEventListener('change', (e) => {
+            this.setJudgeId(e.target.value);
+          });
+        }
+      }
+    };
+
+    window.addEventListener('DOMContentLoaded', () => {
+      window.EventApp.init();
+    });
+  </script>
+</body>
+</html>
