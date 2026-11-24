@@ -53,7 +53,7 @@
   </script>
 
   <style>
-    /* Scrollbars */
+    /* Custom Scrollbar Styling */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #070A11; }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
@@ -83,14 +83,14 @@
 
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen selection:bg-brand-indigo selection:text-white pb-16">
 
-  <!-- Confetti Canvas overlay for Stage Mode -->
+  <!-- Canvas Confetti Overlay for Stage Mode -->
   <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
 
-  <!-- TOP HEADER & NAV -->
+  <!-- TOP HEADER & NAV BAR -->
   <header class="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-xl border-b border-slate-800/80">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
       
-      <!-- Brand & Title -->
+      <!-- Brand & Sync Status -->
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-indigo via-brand-purple to-brand-gold flex items-center justify-center font-display font-black text-white text-lg shadow-lg shadow-indigo-500/20">
           ES
@@ -103,7 +103,7 @@
         </div>
       </div>
 
-      <!-- Mode Selector -->
+      <!-- Mode Tabs Switcher -->
       <div class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
         <button id="nav-btn-organizer" onclick="window.EventApp.setMode('organizer')" class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
@@ -119,7 +119,7 @@
         </button>
       </div>
 
-      <!-- Header Copy Action -->
+      <!-- General Copy Link Button -->
       <div class="flex items-center gap-2">
         <button onclick="window.EventApp.copyJudgeLink()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5 text-brand-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
@@ -130,8 +130,18 @@
     </div>
   </header>
 
-  <!-- MAIN VIEW CONTAINER -->
+  <!-- MAIN CONTAINER -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
+
+    <!-- Firestore Diagnostic Banner (Hidden if OK) -->
+    <div id="firestore-notice-banner" class="hidden mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs leading-relaxed space-y-1">
+      <div class="font-bold flex items-center gap-1.5">
+        <span>⚠️ Cloud Database Note</span>
+      </div>
+      <p id="firestore-notice-msg">
+        Data is currently saving in your browser local memory. To sync across different devices, make sure your Cloud Firestore rules in Firebase Console allow reads and writes (`allow read, write: if true;`).
+      </p>
+    </div>
 
     <!-- ========================================== -->
     <!-- VIEW 1: ORGANIZER DASHBOARD & MECHANICS    -->
@@ -142,12 +152,12 @@
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 glass-card p-5 rounded-2xl border border-slate-800">
         <div>
           <h2 class="text-xl font-bold font-display text-white">Organizer Command Center</h2>
-          <p class="text-xs text-slate-400">Configure event mechanics, contestants, judges, and inspect live scores.</p>
+          <p class="text-xs text-slate-400">Configure event mechanics, contestants, judges, and inspect real-time scores.</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button onclick="window.EventApp.loadSampleData()" class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-600/30 transition-all flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-            Load Demo Setup
+            Load Demo Data
           </button>
           <button onclick="window.EventApp.resetAllScores()" class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/30 hover:bg-rose-500/20 transition-all flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
@@ -156,7 +166,7 @@
         </div>
       </div>
 
-      <!-- Dashboard Tabs -->
+      <!-- Dashboard Sub-Tabs -->
       <div class="flex border-b border-slate-800 gap-2 pb-2 overflow-x-auto">
         <button id="org-tab-mechanics" onclick="window.EventApp.activeTab = 'mechanics'; window.EventApp.renderOrganizerView();" class="px-4 py-2 font-semibold text-sm rounded-lg transition-all">
           📋 Event & Mechanics
@@ -175,10 +185,10 @@
       <!-- TAB 1: MECHANICS & CRITERIA EDITOR -->
       <div id="org-subview-mechanics" class="space-y-6">
         
-        <!-- Settings -->
+        <!-- General Event Info -->
         <div class="glass-card rounded-2xl p-6 border border-slate-800 space-y-4">
           <h3 class="text-base font-bold text-white flex items-center gap-2">
-            <span>⚙️ Competition Parameters</span>
+            <span>⚙️ Competition Setup & Engine</span>
           </h3>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -193,9 +203,9 @@
             </div>
 
             <div>
-              <label class="block text-xs font-semibold text-slate-400 mb-1">Scoring System Engine</label>
+              <label class="block text-xs font-semibold text-slate-400 mb-1">Scoring Calculation Engine</label>
               <select id="event-mode-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-brand-indigo">
-                <option value="weighted">Weighted Percentage (Sum of Criteria Weights = 100%)</option>
+                <option value="weighted">Weighted Percentage (Sum of criteria weights = 100%)</option>
                 <option value="raw">Raw Cumulative Points (Sum of direct criterion scores)</option>
               </select>
             </div>
@@ -203,12 +213,12 @@
 
           <div class="flex justify-end pt-1">
             <button onclick="window.EventApp.saveEventMeta()" class="px-4 py-2 text-xs font-bold rounded-xl bg-brand-indigo hover:bg-indigo-500 text-white shadow-md transition-all">
-              Save Event Info
+              Save Competition Info
             </button>
           </div>
         </div>
 
-        <!-- Criteria List Builder -->
+        <!-- Criteria Builder -->
         <div class="space-y-4">
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div class="flex items-center gap-3">
@@ -231,16 +241,16 @@
           <h3 class="text-base font-bold text-white">Add New Contestant / Team</h3>
           <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div>
-              <label class="block text-xs text-slate-400 mb-1">Badge No.</label>
+              <label class="block text-xs text-slate-400 mb-1">Badge / Order No.</label>
               <input type="text" id="add-cnt-num" placeholder="01" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
             </div>
             <div class="sm:col-span-2">
               <label class="block text-xs text-slate-400 mb-1">Contestant / Team Name</label>
-              <input type="text" id="add-cnt-name" placeholder="Name or Performance Group" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+              <input type="text" id="add-cnt-name" placeholder="Name or Group Name" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
             </div>
             <div>
-              <label class="block text-xs text-slate-400 mb-1">Organization / School</label>
-              <input type="text" id="add-cnt-team" placeholder="Affiliation" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+              <label class="block text-xs text-slate-400 mb-1">Affiliation / School</label>
+              <input type="text" id="add-cnt-team" placeholder="Organization" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
             </div>
           </div>
           <button onclick="window.EventApp.addContestant()" class="px-4 py-2 text-xs font-bold rounded-xl bg-brand-emerald text-white hover:bg-emerald-600 transition-all">
@@ -262,7 +272,7 @@
             </div>
             <div>
               <label class="block text-xs text-slate-400 mb-1">Title / Designation</label>
-              <input type="text" id="add-judge-title" placeholder="e.g. Choreography Master" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+              <input type="text" id="add-judge-title" placeholder="e.g. Head Adjudicator" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
             </div>
           </div>
           <button onclick="window.EventApp.addJudge()" class="px-4 py-2 text-xs font-bold rounded-xl bg-brand-indigo text-white hover:bg-indigo-600 transition-all">
@@ -273,12 +283,12 @@
         <div id="judges-list-container" class="space-y-3"></div>
       </div>
 
-      <!-- TAB 4: MASTER LIVE MATRIX -->
+      <!-- TAB 4: MASTER SCORE MATRIX -->
       <div id="org-subview-matrix" class="space-y-4 hidden">
         <div class="glass-card rounded-2xl p-5 border border-slate-800">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold text-white">Live Adjudication Matrix</h3>
-            <span class="text-xs text-slate-400">Real-time judge scoring breakdown</span>
+            <h3 class="text-lg font-bold text-white">Live Master Score Matrix</h3>
+            <span class="text-xs text-slate-400">Real-time aggregate totals & judge breakdowns</span>
           </div>
           <div id="matrix-table-container"></div>
         </div>
@@ -291,7 +301,7 @@
     <!-- ========================================== -->
     <section id="view-judge" class="space-y-6 hidden max-w-4xl mx-auto">
       
-      <!-- Judge Selector Bar -->
+      <!-- Active Judge Header -->
       <div class="glass-card rounded-2xl p-5 border border-slate-800 space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
@@ -301,7 +311,7 @@
           </div>
 
           <div class="w-full sm:w-auto">
-            <label class="block text-[10px] uppercase text-slate-400 font-bold mb-1">Switch Active Adjudicator:</label>
+            <label class="block text-[10px] uppercase text-slate-400 font-bold mb-1">Active Adjudicator Profile:</label>
             <select id="judge-select-dropdown" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand-indigo w-full">
             </select>
           </div>
@@ -313,7 +323,7 @@
       <!-- Contestants Cards -->
       <div id="judge-contestants-container" class="space-y-6"></div>
 
-      <!-- Submission Action -->
+      <!-- Submit Scorecard Action -->
       <div class="pt-4 sticky bottom-4 z-20">
         <button id="judge-submit-btn" onclick="window.EventApp.submitJudgeScores()"></button>
       </div>
@@ -324,7 +334,7 @@
     <!-- ========================================== -->
     <section id="view-reveal" class="space-y-6 hidden max-w-5xl mx-auto">
       
-      <!-- Header -->
+      <!-- Stage Title Header -->
       <div class="text-center space-y-2 py-4">
         <span class="px-4 py-1 rounded-full bg-brand-gold/10 text-brand-gold border border-brand-gold/30 text-xs font-extrabold uppercase tracking-widest inline-block animate-pulse">
           LIVE CHAMPIONSHIP REVEAL
@@ -335,7 +345,7 @@
         <p id="stage-event-subtitle" class="text-sm sm:text-base text-slate-400 font-medium"></p>
       </div>
 
-      <!-- Presenter Controls Bar -->
+      <!-- Stage Control Bar -->
       <div class="glass-card rounded-2xl p-4 border border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-slate-900/95 sticky top-16 z-30 shadow-2xl">
         <div class="flex items-center gap-2">
           <span class="text-xs text-slate-400 font-semibold">Stage Controls:</span>
@@ -357,14 +367,14 @@
         </div>
       </div>
 
-      <!-- Rankings Stage Display -->
+      <!-- Rankings Container -->
       <div id="stage-rankings-container" class="space-y-4 pt-2"></div>
 
     </section>
 
   </main>
 
-  <!-- TOAST NOTIFICATION -->
+  <!-- TOAST NOTIFICATION SYSTEM -->
   <div id="app-toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
     <div class="glass-card-elevated rounded-xl px-4 py-3 border border-brand-indigo/40 shadow-2xl flex items-center gap-3">
       <span class="text-brand-indigo text-lg">✨</span>
@@ -388,25 +398,34 @@
     </div>
   </div>
 
-  <!-- APPLICATION JAVASCRIPT & FIREBASE -->
+  <!-- APPLICATION LOGIC & FIREBASE SYNCHRONIZATION -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
-    // Global Initial Competition Seed Data
+    // Pre-configured User Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBoWFNlo__qY5LsVadGkSCmYmyRfHqS55s",
+      authDomain: "onlinescoring-721bd.firebaseapp.com",
+      projectId: "onlinescoring-721bd",
+      storageBucket: "onlinescoring-721bd.firebasestorage.app",
+      messagingSenderId: "904647466911",
+      appId: "1:904647466911:web:eae0cbcc8ab2417dcfa7aa",
+      measurementId: "G-51VDSX47L8"
+    };
+
+    // Default Competition Data Seed
     const defaultData = {
       event: {
-        title: "National Performing Arts & Talent Championship 2026",
-        subtitle: "Grand Championship Finals • Live Broadcast",
+        title: "National Performing Arts & Talent Championship",
+        subtitle: "Grand Finals • Live Adjudication",
         scoringMode: "weighted", // "weighted" or "raw"
-        isLocked: false
       },
       criteria: [
         { id: "c1", name: "Technique & Execution", weight: 35, maxScore: 100, description: "Precision, mastery of difficulty, movement control, and skill execution." },
-        { id: "c2", name: "Creativity & Choreography", weight: 30, maxScore: 100, description: "Originality, artistic vision, seamless transitions, and concept." },
+        { id: "c2", name: "Creativity & Choreography", weight: 30, maxScore: 100, description: "Originality, artistic vision, seamless transitions, and composition." },
         { id: "c3", name: "Stage Presence & Impact", weight: 25, maxScore: 100, description: "Audience engagement, charisma, emotional delivery, and expression." },
-        { id: "c4", name: "Costume & Visual Aesthetics", weight: 10, maxScore: 100, description: "Attire cohesion, visual style, and overall stage presentation." }
+        { id: "c4", name: "Costume & Aesthetics", weight: 10, maxScore: 100, description: "Visual coherence, costume design, and overall stage presentation." }
       ],
       contestants: [
         { id: "cnt1", number: "01", name: "Aria Vance & The Luminaries", team: "Metropolis Dance Theater", avatar: "💃" },
@@ -418,7 +437,7 @@
       judges: [
         { id: "j1", name: "Dr. Marcus Vance", title: "Head Judge • Choreography Master" },
         { id: "j2", name: "Elena Rostova", title: "Artistic Director & Performance Critic" },
-        { id: "j3", name: "Julian Thorne", title: "Broadway Director & Talent Adjudicator" }
+        { id: "j3", name: "Julian Thorne", title: "Broadway Director & Adjudicator" }
       ],
       scores: {
         "j1_cnt1_c1": 94, "j1_cnt1_c2": 92, "j1_cnt1_c3": 90, "j1_cnt1_c4": 95,
@@ -431,43 +450,38 @@
 
         "j1_cnt3_c1": 96, "j1_cnt3_c2": 89, "j1_cnt3_c3": 91, "j1_cnt3_c4": 94,
         "j2_cnt3_c1": 95, "j2_cnt3_c2": 88, "j2_cnt3_c3": 90, "j2_cnt3_c4": 96,
-        "j3_cnt3_c1": 97, "j3_cnt3_c2": 90, "j3_cnt3_c3": 92, "j3_cnt3_c4": 95,
 
         "j1_cnt4_c1": 85, "j1_cnt4_c2": 86, "j1_cnt4_c3": 88, "j1_cnt4_c4": 85,
-        "j2_cnt4_c1": 84, "j2_cnt4_c2": 85, "j2_cnt4_c3": 89, "j2_cnt4_c4": 86,
 
-        "j1_cnt5_c1": 91, "j1_cnt5_c2": 90, "j1_cnt5_c3": 89, "j1_cnt5_c4": 92,
-        "j2_cnt5_c1": 89, "j2_cnt5_c2": 92, "j2_cnt5_c3": 90, "j2_cnt5_c4": 91
+        "j1_cnt5_c1": 91, "j1_cnt5_c2": 90, "j1_cnt5_c3": 89, "j1_cnt5_c4": 92
       },
       submissions: {
         "j1": true,
-        "j2": true,
+        "j2": false,
         "j3": false
       }
     };
 
-    // Safe Local Storage Reader
-    function loadLocalStorageData() {
+    // Safe Local Cache Handler
+    function loadLocalCache() {
       try {
-        const stored = localStorage.getItem('eventscore_pro_data');
-        if (stored) {
-          return JSON.parse(stored);
-        }
+        const stored = localStorage.getItem('eventscore_firebase_cache');
+        if (stored) return JSON.parse(stored);
       } catch (e) {
-        console.warn("localStorage read skipped:", e);
+        console.warn("localStorage access restricted:", e);
       }
       return JSON.parse(JSON.stringify(defaultData));
     }
 
-    function saveLocalStorageData(data) {
+    function saveLocalCache(data) {
       try {
-        localStorage.setItem('eventscore_pro_data', JSON.stringify(data));
+        localStorage.setItem('eventscore_firebase_cache', JSON.stringify(data));
       } catch (e) {
-        console.warn("localStorage write skipped:", e);
+        console.warn("localStorage write restricted:", e);
       }
     }
 
-    // Canvas Confetti Fallback Implementation
+    // Native HTML5 Canvas Confetti Engine
     function launchConfetti() {
       const canvas = document.getElementById('confetti-canvas');
       if (!canvas) return;
@@ -478,22 +492,22 @@
       const particles = [];
       const colors = ['#F59E0B', '#10B981', '#6366F1', '#EC4899', '#3B82F6', '#F43F5E'];
 
-      for (let i = 0; i < 120; i++) {
+      for (let i = 0; i < 140; i++) {
         particles.push({
           x: canvas.width / 2,
-          y: canvas.height / 2 + 100,
-          vx: (Math.random() - 0.5) * 18,
-          vy: (Math.random() - 0.8) * 18,
+          y: canvas.height / 2 + 80,
+          vx: (Math.random() - 0.5) * 20,
+          vy: (Math.random() - 0.85) * 22,
           size: Math.random() * 8 + 4,
           color: colors[Math.floor(Math.random() * colors.length)],
           rotation: Math.random() * 360,
-          vRot: (Math.random() - 0.5) * 10,
+          vRot: (Math.random() - 0.5) * 12,
           opacity: 1
         });
       }
 
       let frameCount = 0;
-      function render() {
+      function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         let active = false;
 
@@ -502,33 +516,36 @@
           active = true;
           p.x += p.vx;
           p.y += p.vy;
-          p.vy += 0.3; // gravity
+          p.vy += 0.35; // Gravity
           p.rotation += p.vRot;
-          p.opacity -= 0.008;
+          p.opacity -= 0.007;
 
           ctx.save();
           ctx.translate(p.x, p.y);
           ctx.rotate((p.rotation * Math.PI) / 180);
           ctx.globalAlpha = Math.max(0, p.opacity);
           ctx.fillStyle = p.color;
-          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 1.5);
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 1.4);
           ctx.restore();
         });
 
         frameCount++;
-        if (active && frameCount < 200) {
-          requestAnimationFrame(render);
+        if (active && frameCount < 220) {
+          requestAnimationFrame(animate);
         } else {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
       }
 
-      render();
+      animate();
     }
 
-    // Application Global Singleton
+    // Global Application Object
+    let db = null;
+    let eventDocRef = null;
+
     window.EventApp = {
-      data: loadLocalStorageData(),
+      data: loadLocalCache(),
       currentMode: 'organizer', // 'organizer', 'judge', 'reveal'
       selectedJudgeId: 'j1',
       activeTab: 'mechanics',
@@ -537,10 +554,10 @@
         showJudgesInReveal: false
       },
 
-      init: async function() {
+      init: function() {
         this.parseURLParams();
         this.setupEventListeners();
-        await this.initFirebase();
+        this.initFirebase();
         this.renderAll();
       },
 
@@ -559,84 +576,89 @@
             this.currentMode = 'organizer';
           }
         } catch (e) {
-          console.warn("URL params parsing skipped:", e);
+          console.warn("URL parameter parsing skipped:", e);
         }
       },
 
-      initFirebase: async function() {
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'eventscore-default';
-        let isOnline = false;
-
+      initFirebase: function() {
         try {
-          if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-            const firebaseConfig = JSON.parse(__firebase_config);
-            const firebaseApp = initializeApp(firebaseConfig);
-            const db = getFirestore(firebaseApp);
-            const auth = getAuth(firebaseApp);
+          const app = initializeApp(firebaseConfig);
+          db = getFirestore(app);
+          eventDocRef = doc(db, 'events', 'onlinescoring-main');
 
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-              await signInWithCustomToken(auth, __initial_auth_token);
+          // Real-Time Cloud Listener
+          onSnapshot(eventDocRef, (docSnap) => {
+            if (docSnap.exists()) {
+              const cloudData = docSnap.data();
+              if (cloudData && typeof cloudData === 'object') {
+                this.data = cloudData;
+                saveLocalCache(cloudData);
+                this.updateSyncBadge(true, "Cloud Synced Live");
+                this.hideFirestoreBanner();
+                this.renderAll();
+              }
             } else {
-              await signInAnonymously(auth);
-            }
-
-            if (auth.currentUser) {
-              isOnline = true;
-              this.updateSyncBadge(true);
-              
-              const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'competition', 'current');
-              onSnapshot(docRef, (docSnap) => {
-                if (docSnap.exists()) {
-                  this.data = docSnap.data();
-                  saveLocalStorageData(this.data);
-                  this.renderAll();
-                } else {
-                  setDoc(docRef, this.data, { merge: true });
-                }
-              }, (err) => {
-                console.warn("Firestore snapshot error:", err);
-                this.updateSyncBadge(false);
+              // Initialize document on cloud
+              setDoc(eventDocRef, this.data).then(() => {
+                this.updateSyncBadge(true, "Cloud Synced Live");
+                this.hideFirestoreBanner();
+              }).catch((err) => {
+                console.warn("Initial setDoc error:", err);
+                this.handleFirestoreError(err);
               });
             }
-          }
-        } catch (err) {
-          console.warn("Firebase safely bypassed to local state:", err);
+          }, (err) => {
+            console.warn("Firestore listener error:", err);
+            this.handleFirestoreError(err);
+          });
+        } catch (e) {
+          console.warn("Firebase Init Error:", e);
+          this.updateSyncBadge(false, "Local Mode (Offline)");
         }
+      },
 
-        if (!isOnline) {
-          this.updateSyncBadge(false);
+      handleFirestoreError: function(err) {
+        this.updateSyncBadge(false, "Local / Check Rules");
+        const banner = document.getElementById('firestore-notice-banner');
+        const msg = document.getElementById('firestore-notice-msg');
+        if (banner && msg) {
+          banner.classList.remove('hidden');
+          msg.innerHTML = `
+            <strong>Firestore Write/Read Notice:</strong> Data is currently staying in your local browser cache because Cloud Firestore permissions are locked.
+            To enable instant syncing between judge phones and your dashboard, go to your 
+            <a href="https://console.firebase.google.com/u/0/project/onlinescoring-721bd/firestore/rules" target="_blank" class="underline font-bold text-amber-200">Firebase Console Rules tab</a> 
+            and set: <code class="bg-amber-950 px-1 py-0.5 rounded font-mono">allow read, write: if true;</code>.
+          `;
         }
+      },
+
+      hideFirestoreBanner: function() {
+        const banner = document.getElementById('firestore-notice-banner');
+        if (banner) banner.classList.add('hidden');
       },
 
       saveData: function(newData) {
         this.data = newData;
-        saveLocalStorageData(newData);
+        saveLocalCache(newData);
         this.renderAll();
 
-        // Safe Firestore write try
-        try {
-          if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'eventscore-default';
-            const firebaseConfig = JSON.parse(__firebase_config);
-            const firebaseApp = initializeApp(firebaseConfig);
-            const db = getFirestore(firebaseApp);
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'competition', 'current');
-            setDoc(docRef, newData, { merge: true }).catch(() => {});
-          }
-        } catch (e) {
-          // Ignored if offline
+        if (db && eventDocRef) {
+          setDoc(eventDocRef, newData, { merge: true }).catch(err => {
+            console.warn("Firestore Write Error:", err);
+            this.handleFirestoreError(err);
+          });
         }
       },
 
-      updateSyncBadge: function(isOnline) {
+      updateSyncBadge: function(isOnline, labelText) {
         const badge = document.getElementById('sync-status-badge');
         if (!badge) return;
         if (isOnline) {
           badge.className = "px-2.5 py-0.5 text-[11px] font-semibold rounded-full flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
-          badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Cloud Synced`;
+          badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> ${labelText || "Cloud Synced"}`;
         } else {
           badge.className = "px-2.5 py-0.5 text-[11px] font-semibold rounded-full flex items-center gap-1.5 bg-amber-500/10 text-amber-400 border border-amber-500/30";
-          badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Local / Offline Mode`;
+          badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> ${labelText || "Local Mode"}`;
         }
       },
 
@@ -651,9 +673,7 @@
             url.searchParams.delete('judgeId');
           }
           window.history.pushState({}, '', url);
-        } catch (e) {
-          // Safe catch for iframe security
-        }
+        } catch (e) {}
         this.renderAll();
       },
 
@@ -668,7 +688,9 @@
         this.renderAll();
       },
 
-      // Calculation Core
+      saveLocalCache: saveLocalCache,
+
+      // Calculation Engine
       calculateContestantScore: function(contestantId) {
         const { criteria, judges, scores, event } = this.data;
         if (!judges || judges.length === 0 || !criteria) return { total: 0, criteriaAverages: {} };
@@ -832,7 +854,7 @@
                 </div>
                 ` : ''}
                 <div class="w-full sm:w-28">
-                  <label class="block text-xs font-semibold text-slate-400 mb-1">Max Points</label>
+                  <label class="block text-xs font-semibold text-slate-400 mb-1">Max Score</label>
                   <input type="number" value="${c.maxScore}" min="1" max="1000"
                     onchange="window.EventApp.updateCriterion('${c.id}', 'maxScore', Number(this.value))"
                     class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-brand-indigo">
@@ -840,7 +862,7 @@
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-400 mb-1">Rubric / Instructions for Judges</label>
-                <input type="text" value="${this.escapeHtml(c.description || '')}" placeholder="Scoring rules or breakdown..."
+                <input type="text" value="${this.escapeHtml(c.description || '')}" placeholder="Guidelines or scoring instructions..."
                   onchange="window.EventApp.updateCriterion('${c.id}', 'description', this.value)"
                   class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-brand-indigo">
               </div>
@@ -873,7 +895,7 @@
                     onchange="window.EventApp.updateContestant('${cnt.id}', 'name', this.value)"
                     class="bg-transparent font-bold text-white text-base focus:outline-none border-b border-transparent focus:border-brand-indigo px-1">
                 </div>
-                <input type="text" value="${this.escapeHtml(cnt.team)}" placeholder="Team / Affiliation"
+                <input type="text" value="${this.escapeHtml(cnt.team)}" placeholder="Team / Organization"
                   onchange="window.EventApp.updateContestant('${cnt.id}', 'team', this.value)"
                   class="bg-transparent text-xs text-slate-400 focus:outline-none border-b border-transparent focus:border-brand-indigo px-1 w-full mt-0.5">
               </div>
@@ -910,7 +932,7 @@
                     : `<span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1">⏳ Progress (${scoredCount}/${contestants.length})</span>`
                   }
                 </div>
-                <input type="text" value="${this.escapeHtml(j.title)}" placeholder="Designation"
+                <input type="text" value="${this.escapeHtml(j.title)}" placeholder="Title / Designation"
                   onchange="window.EventApp.updateJudge('${j.id}', 'title', this.value)"
                   class="bg-transparent text-xs text-slate-400 focus:outline-none border-b border-transparent focus:border-brand-indigo px-1 w-full">
               </div>
@@ -918,7 +940,7 @@
               <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
                 <button onclick="window.EventApp.copyJudgeDirectLink('${j.id}')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 flex items-center gap-1.5 transition-all">
                   <svg class="w-3.5 h-3.5 text-brand-indigo" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-                  Copy Judge Link
+                  Copy Unique Link
                 </button>
                 <button onclick="window.EventApp.openAsJudge('${j.id}')" class="px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-xs font-semibold text-indigo-300 transition-all">
                   Open Portal ↗
@@ -1086,7 +1108,7 @@
                   </div>
                 </div>
                 <div class="text-right">
-                  <div class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Calculated Total</div>
+                  <div class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Calculated Score</div>
                   <div class="text-xl font-mono font-extrabold text-amber-400">${contestantTotal.toFixed(1)} <span class="text-xs text-slate-500 font-normal">pts</span></div>
                 </div>
               </div>
@@ -1101,7 +1123,7 @@
         const submitBtn = document.getElementById('judge-submit-btn');
         if (submitBtn) {
           if (isSubmitted) {
-            submitBtn.textContent = "Scorecard Submitted ✓";
+            submitBtn.textContent = "Official Scorecard Submitted ✓";
             submitBtn.disabled = true;
             submitBtn.className = "w-full py-3.5 rounded-xl font-bold text-sm bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700";
           } else {
@@ -1206,12 +1228,12 @@
         }).join('');
       },
 
-      // Stage Reveal Controls
+      // Stage Reveal Methods
       revealNextRank: function() {
         const sorted = this.getSortedRankings();
         const revealedSet = new Set(this.revealState.revealedRanks);
         
-        // Reveal bottom up
+        // Reveal bottom to top
         for (let idx = sorted.length - 1; idx >= 0; idx--) {
           if (!revealedSet.has(idx)) {
             revealedSet.add(idx);
@@ -1252,7 +1274,7 @@
         this.renderRevealView();
       },
 
-      // Action Operations
+      // Action Handlers
       saveEventMeta: function() {
         const title = document.getElementById('event-title-input').value;
         const subtitle = document.getElementById('event-subtitle-input').value;
@@ -1278,7 +1300,7 @@
           name: "New Criterion",
           weight: 10,
           maxScore: 100,
-          description: "Criterion scoring guidelines..."
+          description: "Scoring instructions for judges..."
         };
         const newData = {
           ...this.data,
@@ -1376,7 +1398,7 @@
         titleInput.value = '';
 
         this.saveData(newData);
-        this.showToast("Judge added!");
+        this.showToast("Judge profile created!");
       },
 
       updateJudge: function(id, field, val) {
@@ -1427,7 +1449,7 @@
       loadSampleData: function() {
         this.openModal(
           "Load Demo Competition Data?",
-          "This will reset current criteria, contestants, judges, and scores to standard championship demo data.",
+          "This will reset current criteria, contestants, judges, and scores to standard demo data.",
           () => {
             this.saveData(defaultData);
             this.showToast("Demo competition data loaded!");
